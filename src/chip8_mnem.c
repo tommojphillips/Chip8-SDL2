@@ -6,8 +6,8 @@
 
 #define X ((chip8->opcode >> 8) & 0x0F)
 #define Y ((chip8->opcode >> 4) & 0x00F)
-#define MMM (chip8->opcode & 0x0FFF)
-#define KK (chip8->opcode & 0x00FF)
+#define NNN (chip8->opcode & 0x0FFF)
+#define NN (chip8->opcode & 0x00FF)
 #define N (chip8->opcode & 0x000F)
 
 #include <stdio.h>
@@ -24,33 +24,33 @@ void chip8_mnem_00EE(CHIP8* chip8) {
 	// RET
 	MNEM_0("RET");
 }
-void chip8_mnem_1MMM(CHIP8* chip8) {
-	// JMP MMM
-	MNEM_1("JMP 0x%x", MMM);
+void chip8_mnem_1NNN(CHIP8* chip8) {
+	// JMP NNN
+	MNEM_1("JMP 0x%x", NNN);
 }
-void chip8_mnem_2MMM(CHIP8* chip8) {
-	// CALL MMM
-	MNEM_1("CALL 0x%x", MMM);
+void chip8_mnem_2NNN(CHIP8* chip8) {
+	// CALL NNN
+	MNEM_1("CALL 0x%x", NNN);
 }
-void chip8_mnem_3XKK(CHIP8* chip8) {
-	// SE VX, KK
-	MNEM_2("SE V%X, 0x%x", X, KK);
+void chip8_mnem_3XNN(CHIP8* chip8) {
+	// SE VX, NN
+	MNEM_2("SE V%X, 0x%x", X, NN);
 }
-void chip8_mnem_4XKK(CHIP8* chip8) {
-	// SNE VX, KK
-	MNEM_2("SNE V%X, 0x%x", X, KK);
+void chip8_mnem_4XNN(CHIP8* chip8) {
+	// SNE VX, NN
+	MNEM_2("SNE V%X, 0x%x", X, NN);
 }
 void chip8_mnem_5XY0(CHIP8* chip8) {
 	// SE VX, VY
 	MNEM_2("SE V%X, V%X", X, Y);
 }
-void chip8_mnem_6XKK(CHIP8* chip8) {
-	// LD VX, KK
-	MNEM_2("LD V%X, 0x%x", X, KK);
+void chip8_mnem_6XNN(CHIP8* chip8) {
+	// LD VX, NN
+	MNEM_2("LD V%X, 0x%x", X, NN);
 }
-void chip8_mnem_7XKK(CHIP8* chip8) {
-	// ADD VX, KK
-	MNEM_2("ADD V%X, 0x%x", X, KK);
+void chip8_mnem_7XNN(CHIP8* chip8) {
+	// ADD VX, NN
+	MNEM_2("ADD V%X, 0x%x", X, NN);
 }
 void chip8_mnem_8XY0(CHIP8* chip8) {
 	// LD VX, VY
@@ -92,17 +92,17 @@ void chip8_mnem_9XY0(CHIP8* chip8) {
 	// SNE VX, VY
 	MNEM_2("SNE V%X, V%X", X, Y);
 }
-void chip8_mnem_AMMM(CHIP8* chip8) {
-	// LD I, MMM
-	MNEM_1("LD I, 0x%x", MMM);
+void chip8_mnem_ANNN(CHIP8* chip8) {
+	// LD I, NNN
+	MNEM_1("LD I, 0x%x", NNN);
 }
-void chip8_mnem_BMMM(CHIP8* chip8) {
-	// JMP MMM, V0
-	MNEM_1("JMP 0x%x, V0", MMM);
+void chip8_mnem_BNNN(CHIP8* chip8) {
+	// JMP NNN, V0
+	MNEM_1("JMP 0x%x, V0", NNN);
 }
-void chip8_mnem_CXKK(CHIP8* chip8) {
-	// RND VX, KK
-	MNEM_2("RND V%X, 0x%x", X, KK);
+void chip8_mnem_CXNN(CHIP8* chip8) {
+	// RND VX, NN
+	MNEM_2("RND V%X, 0x%x", X, NN);
 }
 void chip8_mnem_DXYN(CHIP8* chip8) {
 	// DRW VX, VY, N
@@ -171,32 +171,32 @@ int chip8_mnem(CHIP8* chip8) {
 			}
 		} break;
 
-		case 0x1: // JMP MMM
-			chip8_mnem_1MMM(chip8);
+		case 0x1: // JMP NNN
+			chip8_mnem_1NNN(chip8);
 			break;
 
-		case 0x2: // CALL MMM
-			chip8_mnem_2MMM(chip8);
+		case 0x2: // CALL NNN
+			chip8_mnem_2NNN(chip8);
 			break;
 
-		case 0x3: // SE VX, KK
-			chip8_mnem_3XKK(chip8);
+		case 0x3: // SE VX, NN
+			chip8_mnem_3XNN(chip8);
 			break;
 
-		case 0x4: // SNE VX, KK
-			chip8_mnem_4XKK(chip8);
+		case 0x4: // SNE VX, NN
+			chip8_mnem_4XNN(chip8);
 			break;
 
 		case 0x5: // SE VX, VY
 			chip8_mnem_5XY0(chip8);
 			break;
 
-		case 0x6: // LD VX, KK
-			chip8_mnem_6XKK(chip8);
+		case 0x6: // LD VX, NN
+			chip8_mnem_6XNN(chip8);
 			break;
 
-		case 0x7: // ADD VX, KK
-			chip8_mnem_7XKK(chip8);
+		case 0x7: // ADD VX, NN
+			chip8_mnem_7XNN(chip8);
 			break;
 
 		case 0x8: {
@@ -237,14 +237,14 @@ int chip8_mnem(CHIP8* chip8) {
 		case 0x9: // SNE VX, VY
 			chip8_mnem_9XY0(chip8);
 			break;
-		case 0xA: // LD I, MMM 
-			chip8_mnem_AMMM(chip8);
+		case 0xA: // LD I, NNN 
+			chip8_mnem_ANNN(chip8);
 			break;
-		case 0xB: // JMP MMM, V0
-			chip8_mnem_BMMM(chip8);
+		case 0xB: // JMP NNN, V0
+			chip8_mnem_BNNN(chip8);
 			break;
-		case 0xC: // RND VX, KK
-			chip8_mnem_CXKK(chip8);
+		case 0xC: // RND VX, NN
+			chip8_mnem_CXNN(chip8);
 			break;
 		case 0xD: // DSP VX, VY, N
 			chip8_mnem_DXYN(chip8);

@@ -2,14 +2,14 @@
 //
 // GitHub: https:\\github.com\tommojphillips
 
-#include <stdlib.h> // for rand() in CXKK
+#include <stdlib.h> // for rand() in CXNN
 
 #include "chip8.h"
 
 #define X ((chip8->opcode >> 8) & 0x0F)
 #define Y ((chip8->opcode >> 4) & 0x00F)
-#define MMM (chip8->opcode & 0x0FFF)
-#define KK (chip8->opcode & 0x00FF)
+#define NNN (chip8->opcode & 0x0FFF)
+#define NN (chip8->opcode & 0x00FF)
 #define N (chip8->opcode & 0x000F)
 
 #define VX chip8->v[X]
@@ -30,26 +30,26 @@ void chip8_00EE(CHIP8* chip8) {
 	chip8->sp -= 1;
 	chip8->pc += 2;
 }
-void chip8_1MMM(CHIP8* chip8) {
-	// JMP MMM
-	chip8->pc = MMM;
+void chip8_1NNN(CHIP8* chip8) {
+	// JMP NNN
+	chip8->pc = NNN;
 }
-void chip8_2MMM(CHIP8* chip8) {
-	// CALL MMM
+void chip8_2NNN(CHIP8* chip8) {
+	// CALL NNN
 	chip8->sp += 1;
 	chip8->stack[chip8->sp] = chip8->pc;
-	chip8->pc = MMM;
+	chip8->pc = NNN;
 }
-void chip8_3XKK(CHIP8* chip8) {
-	// SE VX, KK
-	if (VX == KK) {
+void chip8_3XNN(CHIP8* chip8) {
+	// SE VX, NN
+	if (VX == NN) {
 		chip8->pc += 2;
 	}
 	chip8->pc += 2;
 }
-void chip8_4XKK(CHIP8* chip8) {
-	// SNE VX, KK
-	if (VX != KK) {
+void chip8_4XNN(CHIP8* chip8) {
+	// SNE VX, NN
+	if (VX != NN) {
 		chip8->pc += 2;
 	}
 	chip8->pc += 2;
@@ -61,14 +61,14 @@ void chip8_5XY0(CHIP8* chip8) {
 	}
 	chip8->pc += 2;
 }
-void chip8_6XKK(CHIP8* chip8) {
-	// LD VX, KK
-	VX = KK;
+void chip8_6XNN(CHIP8* chip8) {
+	// LD VX, NN
+	VX = NN;
 	chip8->pc += 2;
 }
-void chip8_7XKK(CHIP8* chip8) {
-	// ADD VX, KK
-	VX += KK;
+void chip8_7XNN(CHIP8* chip8) {
+	// ADD VX, NN
+	VX += NN;
 	chip8->pc += 2;
 }
 void chip8_8XY0(CHIP8* chip8) {
@@ -79,64 +79,70 @@ void chip8_8XY0(CHIP8* chip8) {
 void chip8_8XY1(CHIP8* chip8) {
 	// OR VX, VY
 	VX |= VY;
+	if (chip8->config.quirks & CHIP8_QUIRK_lOGICAL_OPERATOR_ZERO_VF) {
+		VF = 0;
+	}
 	chip8->pc += 2;
 }
 void chip8_8XY2(CHIP8* chip8) {
 	// AND VX, VY
 	VX &= VY;
+	if (chip8->config.quirks & CHIP8_QUIRK_lOGICAL_OPERATOR_ZERO_VF) {
+		VF = 0;
+	}
 	chip8->pc += 2;
 }
 void chip8_8XY3(CHIP8* chip8) {
 	// XOR VX, VY
 	VX ^= VY;
+	if (chip8->config.quirks & CHIP8_QUIRK_lOGICAL_OPERATOR_ZERO_VF) {
+		VF = 0;
+	}
 	chip8->pc += 2;
 }
 void chip8_8XY4(CHIP8* chip8) {
-	// Set Vx = Vx + Vy, set VF = carry.
+	// ADD VX, VY ; set VF = carry.
 	uint16_t r = VX + VY;
 	VX = r % 256;
 	VF = r > 0xFF ? 1 : 0;
 	chip8->pc += 2;
 }
 void chip8_8XY5(CHIP8* chip8) {
-	// Set Vx = Vx - Vy, set VF = NOT borrow.
-	uint8_t vx = VX;
+	// SUB VX, VY ; set VF = NOT borrow.
+	uint8_t vf = VX < VY ? 0 : 1;
 	VX -= VY;
-	VF = VY < VX ? 0 : 1;
+	VF = vf;
 	chip8->pc += 2;
 }
 void chip8_8XY6(CHIP8* chip8) {
 	// SHR VX, VY
-	uint8_t r = VX;
-	VX = VY >> 0x1;
-	VF = r & 0x1;
-	chip8->pc += 2;
-}
-void chip8_8X06(CHIP8* chip8) {
-	// SHR VX
-	uint8_t r = VX;
-	VX >>= 0x1;
-	VF = r & 0x1;
+	uint8_t vf = VX & 0x1;
+	if (chip8->config.quirks & CHIP8_QUIRK_SHIFT_X_REGISTER) {
+		VX >>= 1;
+	}
+	else {
+		VX = VY >> 0x1;
+	}
+	VF = vf;
 	chip8->pc += 2;
 }
 void chip8_8XY7(CHIP8* chip8) {
-	// VX=VY-VX ; if VY > VX, then VF = 1
+	// SUBN VX, VY
+	uint8_t vf = VY > VX ? 1 : 0;
 	VX = VY - VX;
-	VF = VY > VX ? 1 : 0;
+	VF = vf;
 	chip8->pc += 2;
 }
 void chip8_8XYE(CHIP8* chip8) {
 	// SHL VX, VY
-	uint8_t r = VX;
-	VX = VY << 0x1;
-	VF = (r >> 7) & 1;
-	chip8->pc += 2;
-}
-void chip8_8X0E(CHIP8* chip8) {
-	// SHL VX
-	uint8_t r = VX;
-	VX <<= 1;
-	VF = (r >> 7) & 1;
+	uint8_t vf = (VX >> 7) & 1;
+	if (chip8->config.quirks & CHIP8_QUIRK_SHIFT_X_REGISTER) {
+		VX <<= 1;
+	}
+	else {
+		VX = VY << 0x1;
+	}
+	VF = vf;
 	chip8->pc += 2;
 }
 void chip8_9XY0(CHIP8* chip8) {
@@ -146,18 +152,18 @@ void chip8_9XY0(CHIP8* chip8) {
 	}
 	chip8->pc += 2;
 }
-void chip8_AMMM(CHIP8* chip8) {
-	// LD I, MMM
-	chip8->i = MMM;
+void chip8_ANNN(CHIP8* chip8) {
+	// LD I, NNN
+	chip8->i = NNN;
 	chip8->pc += 2;
 }
-void chip8_BMMM(CHIP8* chip8) {
-	// JMP MMM, V0
-	chip8->pc = MMM + chip8->v[0];
+void chip8_BNNN(CHIP8* chip8) {
+	// JMP NNN, V0
+	chip8->pc = NNN + chip8->v[0];
 }
-void chip8_CXKK(CHIP8* chip8) {
-	// RND VX, KK
-	VX = (rand() % 256) & KK;
+void chip8_CXNN(CHIP8* chip8) {
+	// RND VX, NN
+	VX = (rand() % 256) & NN;
 	chip8->pc += 2;
 }
 void chip8_DXYN(CHIP8* chip8) {

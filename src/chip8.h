@@ -20,7 +20,8 @@
 #define CHIP8_KEY_STATE_KEY_UP 0
 #define CHIP8_KEY_STATE_KEY_DOWN 1
 
-#define CHIP8_QUIRK_SHIFT 2
+#define CHIP8_QUIRK_SHIFT_X_REGISTER 2
+#define CHIP8_QUIRK_lOGICAL_OPERATOR_ZERO_VF 4
 
 /* Chip8 config structure*/
 typedef struct _CHIP8_CONFIG {
@@ -69,18 +70,17 @@ int chip8_mnem(CHIP8* chip8);
 
 int chip8_emulate_cycle(CHIP8* chip8);
 
-
 /* OPCODES */
 
 void chip8_00E0(CHIP8* chip8);
 void chip8_00EE(CHIP8* chip8);
-void chip8_1MMM(CHIP8* chip8);
-void chip8_2MMM(CHIP8* chip8);
-void chip8_3XKK(CHIP8* chip8);
-void chip8_4XKK(CHIP8* chip8);
+void chip8_1NNN(CHIP8* chip8);
+void chip8_2NNN(CHIP8* chip8);
+void chip8_3XNN(CHIP8* chip8);
+void chip8_4XNN(CHIP8* chip8);
 void chip8_5XY0(CHIP8* chip8);
-void chip8_6XKK(CHIP8* chip8);
-void chip8_7XKK(CHIP8* chip8);
+void chip8_6XNN(CHIP8* chip8);
+void chip8_7XNN(CHIP8* chip8);
 void chip8_8XY0(CHIP8* chip8);
 void chip8_8XY1(CHIP8* chip8);
 void chip8_8XY2(CHIP8* chip8);
@@ -88,15 +88,12 @@ void chip8_8XY3(CHIP8* chip8);
 void chip8_8XY4(CHIP8* chip8);
 void chip8_8XY5(CHIP8* chip8);
 void chip8_8XY6(CHIP8* chip8);
-void chip8_8X06(CHIP8* chip8);
 void chip8_8XY7(CHIP8* chip8);
 void chip8_8XYE(CHIP8* chip8);
-void chip8_8X0E(CHIP8* chip8);
 void chip8_9XY0(CHIP8* chip8);
-void chip8_AMMM(CHIP8* chip8);
-void chip8_BMMM(CHIP8* chip8);
-void chip8_BXMM(CHIP8* chip8);
-void chip8_CXKK(CHIP8* chip8);
+void chip8_ANNN(CHIP8* chip8);
+void chip8_BNNN(CHIP8* chip8);
+void chip8_CXNN(CHIP8* chip8);
 void chip8_DXYN(CHIP8* chip8);
 void chip8_EX9E(CHIP8* chip8);
 void chip8_EXA1(CHIP8* chip8);

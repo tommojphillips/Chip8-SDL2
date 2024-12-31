@@ -53,7 +53,7 @@ void chip8_reset(CHIP8* chip8) {
 	chip8->delay_timer = 0;
 	chip8->sound_timer = 0;
 
-	chip8->config.quirks = CHIP8_QUIRK_SHIFT;
+	chip8->config.quirks = CHIP8_QUIRK_SHIFT_X_REGISTER | CHIP8_QUIRK_lOGICAL_OPERATOR_ZERO_VF;
 	
 	chip8_zero_video_memory(chip8);
 }
@@ -125,32 +125,32 @@ int chip8_execute(CHIP8* chip8) {
 			}
 		} break;
 
-		case 0x1: // JMP MMM
-			chip8_1MMM(chip8);
+		case 0x1: // JMP NNN
+			chip8_1NNN(chip8);
 			break;
 
-		case 0x2: // CALL MMM
-			chip8_2MMM(chip8); 
+		case 0x2: // CALL NNN
+			chip8_2NNN(chip8); 
 			break;
 
-		case 0x3: // SE VX, KK
-			chip8_3XKK(chip8);
+		case 0x3: // SE VX, NN
+			chip8_3XNN(chip8);
 			break;
 
-		case 0x4: // SNE VX, KK
-			chip8_4XKK(chip8);
+		case 0x4: // SNE VX, NN
+			chip8_4XNN(chip8);
 			break;
 
 		case 0x5: // SE VX, VY
 			chip8_5XY0(chip8);
 			break;
 
-		case 0x6: // LD VX, KK
-			chip8_6XKK(chip8);
+		case 0x6: // LD VX, NN
+			chip8_6XNN(chip8);
 			break;
 
-		case 0x7: // ADD VX, KK
-			chip8_7XKK(chip8);
+		case 0x7: // ADD VX, NN
+			chip8_7XNN(chip8);
 			break;
 
 		case 0x8: {
@@ -174,27 +174,14 @@ int chip8_execute(CHIP8* chip8) {
 				case 0x05: // SUB VX, VY
 					chip8_8XY5(chip8);
 					break;
-
-				case 0x06:
-					if (chip8->config.quirks & CHIP8_QUIRK_SHIFT) {
-						chip8_8X06(chip8); // SHL VX
-					}
-					else {
-						chip8_8XY6(chip8); // SHL VX, VY
-					}
-					break;
-				
+				case 0x06: // SHL VX, VY
+					chip8_8XY6(chip8);
+					break;				
 				case 0x07: // SUBN VX, VY
 					chip8_8XY7(chip8);
 					break;
-
-				case 0x0E:
-					if (chip8->config.quirks & CHIP8_QUIRK_SHIFT) {
-						chip8_8X0E(chip8); // SHR VX
-					}
-					else {
-						chip8_8XYE(chip8); // SHR VX, VY
-					}
+				case 0x0E: // SHR VX, VY
+					chip8_8XYE(chip8);
 					break;
 
 				default:
@@ -205,14 +192,14 @@ int chip8_execute(CHIP8* chip8) {
 		case 0x9: // SNE VX, VY
 			chip8_9XY0(chip8);
 			break;
-		case 0xA: // LD I, MMM 
-			chip8_AMMM(chip8);
+		case 0xA: // LD I, NNN 
+			chip8_ANNN(chip8);
 			break;
-		case 0xB: // JMP MMM, V0
-			chip8_BMMM(chip8);
+		case 0xB: // JMP NNN, V0
+			chip8_BNNN(chip8);
 			break;
-		case 0xC: // RND VX, KK
-			chip8_CXKK(chip8);
+		case 0xC: // RND VX, NN
+			chip8_CXNN(chip8);
 			break;
 		case 0xD: // DSP VX, VY, N
 			chip8_DXYN(chip8);

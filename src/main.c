@@ -254,11 +254,11 @@ int main(int argc, char* argv[]) {
 					break;
 			}
 
-			chip8->mnem[0] = '\0';
+			/*chip8->mnem[0] = '\0';
 			chip8_mnem(chip8);
 			if (chip8->mnem[0] != '\0') {
 				printf("%s\n", chip8->mnem);
-			}
+			}*/
 		}
 	}
 
