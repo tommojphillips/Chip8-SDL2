@@ -21,12 +21,6 @@
     <ClCompile Include="src\chip8.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\file.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\chip8_opcodes.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\chip8_mnem.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -35,7 +29,7 @@
     <ClInclude Include="src\chip8.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\file.h">
+    <ClInclude Include="src\chip8_mnem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

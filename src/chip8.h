@@ -11,26 +11,33 @@
 #define CHIP8_STACK_SIZE 16
 #define CHIP8_MEMORY_SIZE 4096
 #define CHIP8_PROGRAM_ADDR 512
-#define CHIP8_GFX_SIZE (64 * 32)
+#define CHIP8_VIDEO_SIZE (64 * 32)
 #define CHIP8_FONT_SIZE 80
 
-#define CHIP8_STATE_RUNNING 0
-#define CHIP8_STATE_HALT 1
+typedef enum {
+	CHIP8_STATE_RUN = 0,
+	CHIP8_STATE_HALT = 1,
+	CHIP8_STATE_OPCODE_ERROR = 2,
+} CHIP8_STATE;
 
-#define CHIP8_KEY_STATE_KEY_UP 0
-#define CHIP8_KEY_STATE_KEY_DOWN 1
+typedef enum {
+	CHIP8_KEY_STATE_KEY_UP = 0,
+	CHIP8_KEY_STATE_KEY_DOWN = 1
+} CHIP8_KEY_STATE;
 
-#define CHIP8_QUIRK_SHIFT_X_REGISTER 2
-#define CHIP8_QUIRK_lOGICAL_OPERATOR_ZERO_VF 4
+typedef enum {
+	CHIP8_QUIRK_NONE = 0,
+	CHIP8_QUIRK_SHIFT_X_REGISTER = 2,
+	CHIP8_QUIRK_lOGICAL_OPERATOR_ZERO_VF = 4
+} CHIP8_QUIRKS;
 
 /* Chip8 config structure*/
 typedef struct _CHIP8_CONFIG {
-	int quirks;
+	int quirks;	
 } CHIP8_CONFIG;
 
 /* Chip8 state structure*/
 typedef struct _CHIP8 {
-
 	uint16_t i;				// I register
 	uint16_t pc;			// program counter
 	uint16_t sp;			// stack pointer
@@ -40,35 +47,46 @@ typedef struct _CHIP8 {
 	
 	uint8_t delay_timer;
 	uint8_t sound_timer;
-	uint8_t cpu_state;
 
 	uint8_t v[CHIP8_REGISTER_COUNT]; // registers
 	uint16_t stack[CHIP8_STACK_SIZE];
 	uint8_t ram[CHIP8_MEMORY_SIZE];
-	uint8_t video[CHIP8_GFX_SIZE];
-
-	char mnem[32];
-
+	uint8_t video[CHIP8_VIDEO_SIZE];
+	
+	CHIP8_STATE cpu_state;
 	CHIP8_CONFIG config;
+
+
 
 } CHIP8;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Initialize chip8 cpu state
 void chip8_init(CHIP8* chip8);
+
+// Reset chip8 cpu state
 void chip8_reset(CHIP8* chip8);
 
+// Load font into chip8 memory space
+void chip8_load_font(CHIP8* chip8, const uint8_t* font);
+
+// Zero chip8 memory space
 void chip8_zero_memory(CHIP8* chip8);
+
+// Zero chip8 program space
 void chip8_zero_program_memory(CHIP8* chip8);
+
+// Zero chip8 video space
 void chip8_zero_video_memory(CHIP8* chip8);
 
-void chip8_load_font(CHIP8* chip8, uint8_t* font);
-int chip8_load_rom(CHIP8* chip8, uint8_t* rom, uint16_t size);
+// Step timers
+void chip8_step_timers(CHIP8* chip8);
 
-void chip8_dec_timers(CHIP8* chip8);
-void chip8_render_display(CHIP8* chip8);
+// Decode and execute next instruction
 int chip8_execute(CHIP8* chip8);
-int chip8_mnem(CHIP8* chip8);
-
-int chip8_emulate_cycle(CHIP8* chip8);
 
 /* OPCODES */
 
@@ -106,5 +124,24 @@ void chip8_FX29(CHIP8* chip8);
 void chip8_FX33(CHIP8* chip8);
 void chip8_FX55(CHIP8* chip8);
 void chip8_FX65(CHIP8* chip8);
+
+/*
+ *
+ * IMPLEMENTATION DEPENDENT
+ *
+ */
+
+ /* Render implementation */
+void chip8_render(CHIP8* chip8);
+
+/* Beep implementation */
+void chip8_beep(CHIP8* chip8);
+
+/* Random byte implementation */
+uint8_t chip8_random();
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif

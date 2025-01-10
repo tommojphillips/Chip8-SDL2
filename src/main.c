@@ -2,69 +2,247 @@
 //
 // GitHub: https:\\github.com\tommojphillips
 
+// Define OUTPUT_MNEM for debug mnemonics
+//#define OUTPUT_MNEM
+
+// Define CYLCE_COUNT for limiting emulation by instuctions per frame
+// Undefine CYCLE_COUNT for limiting emulation by clock frequency in hz
+//#define CYCLE_COUNT
+
+// std
 #include <stdint.h>
+#include <stdlib.h> // for rand()
+#include <stdio.h>
 #include <malloc.h>
 #include <string.h>
 
+// SDL
 #include "SDL.h"
+#include "SDL_image.h"
 
 #include "chip8.h"
 
-#include "file.h"
+#ifdef OUTPUT_MNEM
+#include "chip8_mnem.h"
+#endif
 
-typedef struct _SDL_STATE {
+/* SDL Window state */
+typedef struct {
 	SDL_Window* window;
 	SDL_Renderer* renderer;
-	SDL_Texture* texture;
 	SDL_Event e;
 	int window_open;
+	SDL_Surface* icon_surface;
 } SDL_STATE;
 
-SDL_STATE sdl;
+/* Chip8 tile color */
+typedef struct {
+	uint8_t r;
+	uint8_t b;
+	uint8_t g;
+	uint8_t a;
+} TILE_COLOR;
+
+/* Chip8 window configuration */
+typedef struct {
+#ifdef CYCLE_COUNT
+	// Instruction target in fpi
+	uint32_t instructions_per_frame_target; 
+#else
+	//  Clock frequency in hz
+	uint32_t clock_target;
+#endif
+
+	// Display target in fps
+	uint32_t render_target;
+
+	TILE_COLOR pixel_on_color;
+	TILE_COLOR pixel_off_color;
+} CHIP8_WINDOW_CONFIG;
+
+/* Chip8 window stats */
+typedef struct {
+	double cpu_elasped_time;
+	double render_elasped_time;
+	double delta_time;
+	uint64_t current_frame_time;
+	uint64_t last_frame_time;
+	uint32_t instructions_per_frame;
+} CHIP8_WINDOW_STATS;
+
+SDL_STATE sdl = { 0 };
+CHIP8 chip8 = { 0 };
+CHIP8_WINDOW_STATS stats = { 0 };
+CHIP8_WINDOW_CONFIG config = { 0 };
+
+int load_program(const char* filename) {
+
+	chip8_reset(&chip8);
+	chip8_zero_program_memory(&chip8);
+
+	uint32_t size = 0;	
+	FILE* file = NULL;
+	fopen_s(&file, filename, "rb");
+	if (file == NULL) {
+		printf("Error: could not open file: %s\n", filename);
+		chip8.cpu_state = CHIP8_STATE_HALT;
+		return 1;
+	}
+
+	fseek(file, 0, SEEK_END);
+	size = ftell(file);
+	fseek(file, 0, SEEK_SET);
+
+	if (CHIP8_MEMORY_SIZE - CHIP8_PROGRAM_ADDR < size) {
+		fclose(file);
+		printf("Error: program too big\n");
+		chip8.cpu_state = CHIP8_STATE_HALT;
+		return 1;
+	}
+	
+	fread(chip8.ram + CHIP8_PROGRAM_ADDR, 1, size, file);
+	fclose(file);
+	printf("loaded %s (%d bytes) into RAM at 0x%x\n", filename, size, CHIP8_PROGRAM_ADDR);
+	return 0;
+}
+
+void cal_delta_time() {
+	stats.last_frame_time = stats.current_frame_time;
+	stats.current_frame_time = SDL_GetPerformanceCounter();
+	stats.delta_time = (stats.current_frame_time - stats.last_frame_time) * 1000.0 / (double)SDL_GetPerformanceFrequency();
+}
 
 /* CHIP8 */
-int chip8_load_file(CHIP8* chip8, const char* file) {
+void chip8_render(CHIP8* chip8) {
+#define WIDTH 64
+#define HEIGHT 32
+#define PIXEL_SIZE (win_width / WIDTH)
+#define WIDTH_OFFSET (( win_width - ( WIDTH * PIXEL_SIZE ) ) / 2)
+#define HEIGHT_OFFSET (( win_height - ( HEIGHT * PIXEL_SIZE ) ) / 2)
+	uint8_t x, y;
+	SDL_Rect rect = { 0 };
+	int win_width = 0, win_height = 0;
 
-	uint32_t size = 0;
-	int result = readFileIntoBuffer(file, chip8->ram + CHIP8_PROGRAM_ADDR, (CHIP8_MEMORY_SIZE - CHIP8_PROGRAM_ADDR), &size, 0);
-	if (result == 0) {
-		printf("loaded %s (%d bytes) into RAM at 0x%x\n", file, size, CHIP8_PROGRAM_ADDR);
-	}
+	SDL_GetWindowSize(sdl.window, &win_width, &win_height);
+		
+	for (x = 0; x < WIDTH; ++x) {
+		for (y = 0; y < HEIGHT; ++y) {
+			
+			rect.x = WIDTH_OFFSET + (x * PIXEL_SIZE);
+			rect.y = HEIGHT_OFFSET + (y * PIXEL_SIZE);
+			rect.w = PIXEL_SIZE;
+			rect.h = PIXEL_SIZE;
 
-	return result;
-}
+			if (chip8->video[x+(y * WIDTH)]) {
+				SDL_SetRenderDrawColor(sdl.renderer,
+					config.pixel_on_color.r,
+					config.pixel_on_color.g,
+					config.pixel_on_color.b,
+					config.pixel_on_color.a);
+			}
+			else {
+				SDL_SetRenderDrawColor(sdl.renderer,
+					config.pixel_off_color.r,
+					config.pixel_off_color.g,
+					config.pixel_off_color.b,
+					config.pixel_off_color.a);
+			}
 
-/* CHIP8 DISPLAY */
-void chip8_render_display(CHIP8* chip8) {
-
-	uint32_t* pixels;
-	int pitch;
-	int x = 0;
-	int y = 0;
-
-	SDL_LockTexture(sdl.texture, NULL, &pixels, &pitch);
-	for (int i = 0; i < CHIP8_GFX_SIZE; ++i) {
-		uint32_t val = chip8->video[i] ? -1 : 0;
-		pixels[(128 * (2 * y + 0) + (2 * x + 0))] = val;
-		pixels[(128 * (2 * y + 0) + (2 * x + 1))] = val;
-		pixels[(128 * (2 * y + 1) + (2 * x + 0))] = val;
-		pixels[(128 * (2 * y + 1) + (2 * x + 1))] = val;
-		if (++x == 64) {
-			x = 0;
-			y++;
+			SDL_RenderFillRect(sdl.renderer, &rect);
 		}
 	}
-	SDL_UnlockTexture(sdl.texture);
-	SDL_RenderClear(sdl.renderer);
-	SDL_RenderCopy(sdl.renderer, sdl.texture, NULL, NULL);
 	SDL_RenderPresent(sdl.renderer);
 }
+void chip8_beep(CHIP8* chip8) {
+	printf("BEEP\n");
+}
+uint8_t chip8_random() {
+	return (rand() % 256);
+}
 
-/* CHIP8 INPUT */
-void chip8_keypad_input(CHIP8* chip8, uint8_t v) {
-#define SET_KEY(n, v) chip8->keypad = (chip8->keypad & ~(0x1U << n)) | (v << n)
+int chip8_emulate_cycle() {
+#ifdef CYCLE_COUNT
+	if (stats.instructions_per_frame < config.instructions_per_frame_target) {
+		stats.instructions_per_frame++;
+		int result = chip8_execute(&chip8);
+		if (result != 0) {
+			return result;
+		}
+	}
+#else
+	const double cpu_duration = (1.0 / config.clock_target) * 1000.0;
+	stats.cpu_elasped_time += stats.delta_time;
+	if (cpu_duration < stats.cpu_elasped_time) {
+		stats.cpu_elasped_time = 0;
+		int result = chip8_execute(&chip8);
+		if (result != 0) {
+			return result;
+		}
+	}
+#endif
+
+	const double render_duration = (1.0 / config.render_target) * 1000.0;
+	stats.render_elasped_time += stats.delta_time;
+	if (render_duration < stats.render_elasped_time) {
+		stats.render_elasped_time = 0;
+		stats.instructions_per_frame = 0;
+		chip8_render(&chip8);
+		chip8_step_timers(&chip8);
+	}
+
+	return 0;
+}
+void chip8_set_config() {
+#ifdef CYCLE_COUNT
+	config.instructions_per_frame_target = 540 / 60;
+#else
+	config.clock_target = 500;
+#endif
+	config.render_target = 60;
+
+	config.pixel_on_color.r = 255;
+	config.pixel_on_color.g = 204;
+	config.pixel_on_color.b = 102;
+	config.pixel_on_color.a = 0xFF;
+
+	config.pixel_off_color.r = 0x0;
+	config.pixel_off_color.g = 0x0;
+	config.pixel_off_color.b = 0x0;
+	config.pixel_off_color.a = 0x0;
+}
+void chip8_update() {
+
+	int result = chip8_emulate_cycle();
+	switch (result) {
+		case 0:
+			break;
+
+		case 1:
+			printf("Error unknown opcode at pc: %x, op: %x\n", chip8.pc, chip8.opcode);
+			chip8.cpu_state = CHIP8_STATE_HALT;
+			break;
+
+		default:
+			printf("Error %x\n", result);
+			chip8.cpu_state = CHIP8_STATE_HALT;
+			break;
+	}
+
+#ifdef OUTPUT_MNEM
+	CHIP8_MNEM mnem = { 0 };
+	mnem.chip8 = chip8;
+	mnem.str[0] = '\0';
+	chip8_mnem(&mnem);
+	if (mnem.str[0] != '\0') {
+		printf("%s\n", mnem.str);
+	}
+#endif
+}
+
+/* INPUT */
+void keypad_input(uint8_t v) {
+#define SET_KEY(n, v) chip8.keypad = (chip8.keypad & ~(0x1U << n)) | (v << n)
 	switch (sdl.e.key.keysym.sym) {
-
 		case SDLK_1:
 			SET_KEY(1, v);
 			break;
@@ -118,67 +296,102 @@ void chip8_keypad_input(CHIP8* chip8, uint8_t v) {
 			break;
 	}
 }
-void chip8_sys_input(CHIP8* chip8) {
-
+void system_input() {
 	if (sdl.e.key.keysym.mod & KMOD_LCTRL) {
 		switch (sdl.e.key.keysym.sym) {
 			case SDLK_r: { // RESET - CTRL + R
-				chip8_reset(chip8);
+				chip8_reset(&chip8);
+				printf("RESET\n");
 			} break;
 		}
 	}
 
 	switch (sdl.e.key.keysym.sym) {
 		case SDLK_SPACE: { // PAUSE / UNPAUSE - SPACE
-			if (chip8->cpu_state == CHIP8_STATE_RUNNING)
-				chip8->cpu_state = CHIP8_STATE_HALT;
-			else
-				chip8->cpu_state = CHIP8_STATE_RUNNING;
+			if (chip8.cpu_state == CHIP8_STATE_RUN) {
+				chip8.cpu_state = CHIP8_STATE_HALT;
+				printf("PAUSE\n");
+			}
+			else {
+				chip8.cpu_state = CHIP8_STATE_RUN;
+				printf("UNPAUSE\n");
+			}
 		} break;
+#ifdef CYCLE_COUNT
+		case SDLK_KP_PLUS: { // INC SPEED
+			if (config.instructions_per_frame_target < 0xFFFFFF) {
+				printf("CYCLE TARGET: %u / frame\n", config.instructions_per_frame_target += 1);
+			}
+		} break;
+		case SDLK_KP_MINUS: { // DEC SPEED
+			if (config.instructions_per_frame_target > 0) {
+				printf("CYCE TARGET: %u / frame\n", config.instructions_per_frame_target -= 1);
+			}
+		} break;			  
+#else
+		case SDLK_KP_PLUS: { // INC SPEED
+			if (config.clock_target < 0xFFFFFF) {
+				printf("CLOCK TARGET: %u hz\n", config.clock_target += 1);
+			}
+		} break;
+		case SDLK_KP_MINUS: { // DEC SPEED
+			if (config.clock_target > 0) {
+				printf("CLOCK TARGET: %u hz\n", config.clock_target -= 1);
+			}
+		} break;
+#endif
 	}
 }
 
 /* SDL */
-void init_sdl() {
+void sdl_init() {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		printf("Failed to initialize SDL\n");
 		exit(1);
 	}
 
-	sdl.window = SDL_CreateWindow("Chip-8", 100, 100, 640, 320, SDL_WINDOW_RESIZABLE);
+	sdl.window = SDL_CreateWindow("Chip-8", 100, 100, 660, 340, SDL_WINDOW_RESIZABLE);
 	if (sdl.window == NULL) {
 		printf("Failed to create window\n");
 		exit(1);
 	}
 
-	sdl.renderer = SDL_CreateRenderer(sdl.window, -1, SDL_RENDERER_ACCELERATED);
+	sdl.icon_surface = IMG_Load("icon.ico");
+	if (sdl.icon_surface != NULL) {
+		SDL_SetWindowIcon(sdl.window, sdl.icon_surface);
+	}
+	else {
+		printf("Failed to load icon.ico\n");
+	}
+
+	sdl.renderer = SDL_CreateRenderer(sdl.window, -1, 0);
 	if (sdl.renderer == NULL) {
 		printf("Failed to create renderer\n");
 		exit(1);
 	}
 
-	sdl.texture = SDL_CreateTexture(sdl.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 128, 64);
-	if (sdl.texture == NULL) {
-		printf("Failed to create screen texture\n");
-		exit(1);
-	}
-
 	sdl.window_open = 1;
 }
-void destroy_sdl() {
+void sdl_destroy() {
 
-	SDL_DestroyTexture(sdl.texture);
-	sdl.texture = NULL;
+	if (sdl.icon_surface != NULL) {
+		SDL_FreeSurface(sdl.icon_surface);
+		sdl.icon_surface = NULL;
+	}
 
-	SDL_DestroyRenderer(sdl.renderer);
-	sdl.window = NULL;
+	if (sdl.renderer != NULL) {
+		SDL_DestroyRenderer(sdl.renderer);
+		sdl.renderer = NULL;
+	}
 
-	SDL_DestroyWindow(sdl.window);
-	sdl.renderer = NULL;
+	if (sdl.window != NULL) {
+		SDL_DestroyWindow(sdl.window);
+		sdl.window = NULL;
+	}
 
 	SDL_Quit();
 }
-void update_sdl(CHIP8* chip8) {
+void sdl_update() {
 	while (SDL_PollEvent(&sdl.e)) {
 
 		switch (sdl.e.type) {
@@ -188,89 +401,47 @@ void update_sdl(CHIP8* chip8) {
 				break;
 
 			case SDL_DROPFILE:
-				chip8_reset(chip8);
-				chip8_zero_program_memory(chip8);
-				int result = chip8_load_file(chip8, sdl.e.drop.file);
-				if (result != 0) {
-					chip8->cpu_state = CHIP8_STATE_HALT;
-				}
+				load_program(sdl.e.drop.file);
 				break;
 
 			case SDL_KEYDOWN:
-				chip8_keypad_input(chip8, CHIP8_KEY_STATE_KEY_DOWN);
-				chip8_sys_input(chip8);
+				keypad_input(CHIP8_KEY_STATE_KEY_DOWN);
+				system_input();
 				break;
 
 			case SDL_KEYUP:
-				chip8_keypad_input(chip8, CHIP8_KEY_STATE_KEY_UP);
+				keypad_input(CHIP8_KEY_STATE_KEY_UP);
 				break;
 		}
 	}
-
-	SDL_UpdateWindowSurface(sdl.window);
 }
 
+/* IMGUI */
 int main(int argc, char* argv[]) {
 
-	int result = 0;
-	CHIP8* chip8 = NULL;
-	uint8_t* program = NULL;
+	sdl_init();
 
-	init_sdl();
-
-	// Chip8
-	chip8 = (CHIP8*)malloc(sizeof(CHIP8));
-	if (chip8 == NULL) {
-		printf("Failed to allocate chip8 instance\n");
-		exit(1);
-	}
-
-	program = (uint8_t*)malloc(CHIP8_MEMORY_SIZE - CHIP8_PROGRAM_ADDR);
-	if (program == NULL) {
-		printf("Failed to allocate program memory\n");
-		exit(1);
-	}
-
-	chip8_init(chip8);
+	chip8_set_config();
+	chip8_init(&chip8);
 	if (argc > 1) {
-		result = chip8_load_file(chip8, argv[1]);
-		if (result != 0) {
-			chip8->cpu_state = CHIP8_STATE_HALT;
-		}
+		load_program(argv[1]);
+	}
+	else {
+		chip8.cpu_state = CHIP8_STATE_HALT; // start halted; wait for user to load program.
 	}
 
-	// Window Loop
 	while (sdl.window_open) {
-		
-		update_sdl(chip8);
-				
-		if (chip8->cpu_state == CHIP8_STATE_RUNNING) {
-						
-			result = chip8_emulate_cycle(chip8);
-			switch (result) {
-				case 1:
-					printf("Error unknown opcode at pc: %x, op: %x\n", chip8->pc, chip8->opcode);
-					chip8->cpu_state = CHIP8_STATE_HALT;
-					break;
-			}
+		cal_delta_time();
+		sdl_update();
 
-			/*chip8->mnem[0] = '\0';
-			chip8_mnem(chip8);
-			if (chip8->mnem[0] != '\0') {
-				printf("%s\n", chip8->mnem);
-			}*/
+		if (chip8.cpu_state == CHIP8_STATE_RUN) {
+			chip8_update();
 		}
 	}
 
 	// Cleanup
 
-	free(chip8);
-	chip8 = NULL;
+	sdl_destroy();
 
-	free(program);
-	program = NULL;
-
-	destroy_sdl(&sdl);
-
-	return result;
+	return 0;
 }
