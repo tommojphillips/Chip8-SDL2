@@ -87,30 +87,30 @@ The project directory structure should look like this:
 Chip8-SDL2\
       | -- lib\
       |        | -- Chip8-Core\
-               |              | -- chip8.h
-               |              | -- chip8.c
-               |              | -- chip8_defines.h
-               |              | -- chip8_mnem.c
-               |
-               | -- imgui\
-               |          | -- backends\
-               |
-               | -- imgui-club\
-               |          | -- imgui_memory_editor\
-               |
-               | -- SDL2\
-               |         | -- include\
-               |         | -- lib\
-               |
-               | -- SDL2_Image\
-               |               | -- include\
-               |               | -- lib\
-               | 
-               | -- src\
-               |
-               | -- vc\
-               |       | -- Chip8-SDL2.sln
-               |       | -- Chip8-SDL2.vcxproj
+      |        |              | -- chip8.h
+      |        |              | -- chip8.c
+      |        |              | -- chip8_defines.h
+      |        |              | -- chip8_mnem.c
+      |        |
+      |        | -- imgui\
+      |        |          | -- backends\
+      |        |
+      |        | -- imgui-club\
+      |        |          | -- imgui_memory_editor\
+      |        |
+      |        | -- SDL2\
+      |        |         | -- include\
+      |        |         | -- lib\
+      |        |
+      |        | -- SDL2_Image\
+      |                        | -- include\
+      |                        | -- lib\
+      |         
+      | -- src\
+      |
+      | -- vc\
+      |       | -- Chip8-SDL2.sln
+      |       | -- Chip8-SDL2.vcxproj
 ```
 
  ---
