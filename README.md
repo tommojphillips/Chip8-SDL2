@@ -1,8 +1,6 @@
 ## Chip8 Interpreter
 
-A Chip-8 Interpreter written in C using SDL2 to render the graphics.Passes all tests in Timendus's Chip8 Test Suite. 
-The Interpreter is limited by `instructions per frame` ( FPI ) or by a clock frequency in Hz, both are adjustable
-The frame rate is targeted at 60 fps
+A Chip-8 Interpreter For windows written in C using SDL2 and IMGUI
 
 ---
 
@@ -25,24 +23,72 @@ The frame rate is targeted at 60 fps
 ---
 
 ### Loading Chip8 Programs
- - *Drag n drop* files onto the window to load them
- - Launch a program using: `Chip8.exe <program_file>
+ - *Drag n drop* c8 files onto the window to load them
+ - Launch a program using: `Chip8.exe <c8_file>
 
  ---
 
- #### Dependencies
+ ### Dependencies
  
-The only dependencies are SDL2 and SDL2-image libraries
+The only dependencies are IMGUI, SDL2 and SDL2-image libraries
+  - Chip8 Core - https://github.com/tommojphillips/Chip8-Core
+  - IMGUI v1.91.6 - https://github.com/ocornut/imgui/releases/tag/v1.91.6
   - SDL2 v2.30.10 - https://github.com/libsdl-org/SDL/releases/tag/release-2.30.10
   - SDL2-Image v2.8.4 - https://github.com/libsdl-org/SDL_image/releases/tag/release-2.8.4
+
+  ---
+
+### Building
+
+The project is built in Visual Studio 2022
+
+  1. Clone the repo  `git clone https://github.com/tommojphillips/Chip8-SDL2.git`
+
+  2. Clone Chip8-Core into `Chip8-SDL2/Chip-Core` using `git clone https://github.com/tommojphillips/Chip8-Core.git`
+
+  3. Download SDL2 Library [`SDL2-devel-X.X.X-VC.zip`](https://github.com/libsdl-org/SDL/releases/tag/release-2.30.10)
+     - Extract and copy the `include` and `lib` folders into `Chip8-SDL2/SDL2`
+
+  4. Download SDL2 Image Library [`SDL2_Image-devel-X.X.X-VC.zip`](https://github.com/libsdl-org/SDL_image/releases/tag/release-2.8.4)
+     - Extract the `include` and `lib` folders into `Chip8-SDL2/SDL2`
+  
+  5. Clone IMGUI into `Chip8-SDL2/imgui` using `git clone --depth 1 --branch v1.91.6 https://github.com/ocornut/imgui.git`
+
+The project directory structure should look like this:
+
+```
+Chip8-SDL2\
+      |
+      | -- Chip8-Core\
+      |               | -- chip8.h
+      |               | -- chip8.c
+      |               | -- chip8_defines.h
+      |               | -- chip8_mnem.c
+      |
+      | -- imgui\
+      |          | -- backends\
+      |
+      | -- SDL2\
+      |         | -- include\
+      |         | -- lib\
+      |
+      | -- SDL2_Image\
+      |               | -- include\
+      |               | -- lib\
+      | 
+      | -- src\
+      |
+      | -- Chip8.sln
+      | -- Chip8.vcxproj
+
+```
 
  ---
 
 #### Sources
- - [corax89's Chip8 Test Rom](https://github.com/corax89/chip8-test-rom)
- - [Timendus's Chip8 Test Suite](https://github.com/Timendus/chip8-test-suite)
+ - [Chip 8 on the COSMAC VIP](https://www.laurencescotford.net/2020/07/25/chip-8-on-the-cosmac-vip-instruction-index/) by Laurence Scotford
+ - [Chip8 Test Suite](https://github.com/Timendus/chip8-test-suite) by Timendus
  - [Chip8 Links](https://chip-8.github.io/links/)
- - [Wiki](https://en.wikipedia.org/wiki/CHIP-8)
 
  ---
 
