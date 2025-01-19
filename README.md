@@ -1,6 +1,6 @@
 ## Chip8 Interpreter
 
-A Chip-8 Interpreter For windows written in C using SDL2 and IMGUI
+A Chip-8 Interpreter For windows written in C using SDL2 for renderering and imgui for a simple menu and debug windows.
 
 ---
 
@@ -14,12 +14,14 @@ A Chip-8 Interpreter For windows written in C using SDL2 and IMGUI
 | A S D F  | ---> | 7 8 9 E  |
 | Z X C V  | ---> | A 0 B F  |
 
-| Key         | Desc                   |
-| ---         | ---------------------- | 
-| Ctrl+R      | Reset current program  |
-| Space       | Pause/Unpause          |
-| Plus ( + )  | Increment Clock        |
-| Minus ( - ) | Decrment Clock         |
+| Key         | Desc                       | 
+| ---         | ----------------------     |  
+| Esc         | Toggle Main Menu           |
+| Ctrl+R      | Reset current program      |
+| Space       | Pause/Unpause              |
+| Plus ( + )  | Increment Clock            |
+| Minus ( - ) | Decrment Clock             |
+| Enter       | Step Program (when halted) |
 
 ---
 
@@ -29,15 +31,13 @@ A Chip-8 Interpreter For windows written in C using SDL2 and IMGUI
 
  ---
 
- ### Dependencies
- 
-The only dependencies are IMGUI, SDL2 and SDL2-image libraries
-  - Chip8 Core - https://github.com/tommojphillips/Chip8-Core
-  - IMGUI v1.91.6 - https://github.com/ocornut/imgui/releases/tag/v1.91.6
-  - SDL2 v2.30.10 - https://github.com/libsdl-org/SDL/releases/tag/release-2.30.10
-  - SDL2_Image v2.8.4 - https://github.com/libsdl-org/SDL_image/releases/tag/release-2.8.4
+### Dependencies 
+ - Chip8 Core - https://github.com/tommojphillips/Chip8-Core
+ - IMGUI v1.91.6 - https://github.com/ocornut/imgui/releases/tag/v1.91.6
+ - SDL2 v2.30.10 - https://github.com/libsdl-org/SDL/releases/tag/release-2.30.10
+ - SDL2_Image v2.8.4 - https://github.com/libsdl-org/SDL_image/releases/tag/release-2.8.4
 
-  ---
+---
 
 ### Building
 
@@ -49,25 +49,25 @@ The project is built in Visual Studio 2022
   git clone https://github.com/tommojphillips/Chip8-SDL2.git
   ```
   
-  2. CD to lib/ dir
+  2. CD to `lib/` dir
   
   ```
   cd Chip8-SDL2/lib
   ```
 
-  3. Clone Chip8-Core into lib/ dir
+  3. Clone `Chip8-Core` into `lib/` dir
   
   ```
   git clone https://github.com/tommojphillips/Chip8-Core.git
   ```
   
-  4. Clone imgui into lib/ dir
+  4. Clone `imgui` into `lib/` dir
   
   ``` 
   git clone --depth 1 --branch v1.91.6 https://github.com/ocornut/imgui.git
   ```
   
-  5. Clone imgui-club into lib/ dir
+  5. Clone `imgui-club` into `lib/` dir
 
   ```
   git clone https://github.com/ocornut/imgui_club.git
@@ -85,29 +85,32 @@ The project directory structure should look like this:
 
 ```
 Chip8-SDL2\
-      |
-      | -- Chip8-Core\
-      |               | -- chip8.h
-      |               | -- chip8.c
-      |               | -- chip8_defines.h
-      |               | -- chip8_mnem.c
-      |
-      | -- imgui\
-      |          | -- backends\
-      |
-      | -- SDL2\
-      |         | -- include\
-      |         | -- lib\
-      |
-      | -- SDL2_Image\
-      |               | -- include\
-      |               | -- lib\
-      | 
-      | -- src\
-      |
-      | -- Chip8.sln
-      | -- Chip8.vcxproj
-
+      | -- lib\
+      |        | -- Chip8-Core\
+               |              | -- chip8.h
+               |              | -- chip8.c
+               |              | -- chip8_defines.h
+               |              | -- chip8_mnem.c
+               |
+               | -- imgui\
+               |          | -- backends\
+               |
+               | -- imgui-club\
+               |          | -- imgui_memory_editor\
+               |
+               | -- SDL2\
+               |         | -- include\
+               |         | -- lib\
+               |
+               | -- SDL2_Image\
+               |               | -- include\
+               |               | -- lib\
+               | 
+               | -- src\
+               |
+               | -- vc\
+               |       | -- Chip8-SDL2.sln
+               |       | -- Chip8-SDL2.vcxproj
 ```
 
  ---
