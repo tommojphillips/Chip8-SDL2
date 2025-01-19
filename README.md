@@ -2,9 +2,12 @@
 
 A Chip-8 Interpreter For windows written in C using SDL2 and IMGUI
 
+![tommojphillips_chip8_pixel_art](https://github.com/user-attachments/assets/9d9008cc-10ca-44aa-9652-2beed2d306e2)
+
 ---
 
 #### Input
+
 
 | Keyboard | ---> |  Chip8   |
 | -------- | ---- | -------- | 
