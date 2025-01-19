@@ -48,32 +48,38 @@ The project is built in Visual Studio 2022
   ```
   git clone https://github.com/tommojphillips/Chip8-SDL2.git
   ```
+  
+  2. CD
+  
+  ```
+  cd Chip8-SDL2
+  ```
 
-  2. Clone Chip8-Core into `Chip8-SDL2/Chip-Core`
+  3. Clone Chip8-Core into `Chip8-SDL2/Chip-Core`
   
   ```
   git clone https://github.com/tommojphillips/Chip8-Core.git
   ```
   
-  3. Clone imgui into `Chip8-SDL2/imgui` 
+  4. Clone imgui into `Chip8-SDL2/imgui` 
   
   ``` 
   git clone --depth 1 --branch v1.91.6 https://github.com/ocornut/imgui.git
   ```
   
-  4. Clone imgui-club into `Chip8-SDL2/imgui-club`
+  5. Clone imgui-club into `Chip8-SDL2/imgui-club`
 
   ```
   git clone https://github.com/ocornut/imgui_club.git
   ```
  
-  5. Download SDL2 Library [`SDL2-devel-X.X.X-VC.zip`](https://github.com/libsdl-org/SDL/releases/tag/release-2.30.10)
+  6. Download SDL2 Library [`SDL2-devel-X.X.X-VC.zip`](https://github.com/libsdl-org/SDL/releases/tag/release-2.30.10)
      - Extract and copy the `include` and `lib` folders into `Chip8-SDL2/SDL2` you will have to create the `SDL2` directory
 
-  6. Download SDL2 Image Library [`SDL2_Image-devel-X.X.X-VC.zip`](https://github.com/libsdl-org/SDL_image/releases/tag/release-2.8.4)
+  7. Download SDL2 Image Library [`SDL2_Image-devel-X.X.X-VC.zip`](https://github.com/libsdl-org/SDL_image/releases/tag/release-2.8.4)
      - Extract the `include` and `lib` folders into `Chip8-SDL2/SDL2_Image` you will have to create the `SDL2_Image` directory
   
-  7. Open .Sln in visual studio and build and run
+  8. Open .Sln in visual studio and build and run
 
 The project directory structure should look like this:
 
