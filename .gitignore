@@ -363,7 +363,8 @@ MigrationBackup/
 FodyWeavers.xsd
 
 test_roms/
-
+SDL2/
+SDL2_image/
 imgui/
 imgui_club/
 Chip8-Core/
