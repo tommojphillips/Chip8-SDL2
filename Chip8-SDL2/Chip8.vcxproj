@@ -61,21 +61,21 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\Chip8-Core;..\SDL2\include;..\SDL2_image\include;..\imgui;..\imgui\backends</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);..\SDL2\lib\x86;..\SDL2_image\lib\x86</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\Chip8-Core\src;..\SDL2\include;..\SDL2-image\include;..\imgui;..\imgui_club\;..\imgui\backends</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);..\SDL2\lib\x86;..\SDL2-image\lib\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Console|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\Chip8-Core;..\SDL2\include;..\SDL2_image\include;..\imgui;..\imgui\backends</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);..\SDL2\lib\x86;..\SDL2_image\lib\x86</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\Chip8-Core\src;..\SDL2\include;..\SDL2-image\include;..\imgui;..\imgui_club\;..\imgui\backends</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);..\SDL2\lib\x86;..\SDL2-image\lib\x86</LibraryPath>
     <TargetName>$(ProjectName)_console</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);..\SDL2\lib\x86;..\SDL2_image\lib\x86</LibraryPath>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\Chip8-Core;..\SDL2\include;..\SDL2_image\include;..\imgui;..\imgui\backends</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);..\SDL2\lib\x86;..\SDL2-image\lib\x86</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\Chip8-Core\src;..\SDL2\include;..\SDL2-image\include;..\imgui;..\imgui_club\;..\imgui\backends</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -142,8 +142,8 @@
     </ManifestResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Chip8-Core\chip8.c" />
-    <ClCompile Include="..\Chip8-Core\chip8_mnem.c" />
+    <ClCompile Include="..\Chip8-Core\src\chip8.c" />
+    <ClCompile Include="..\Chip8-Core\src\chip8_mnem.c" />
     <ClCompile Include="..\imgui\backends\imgui_impl_sdl2.cpp" />
     <ClCompile Include="..\imgui\backends\imgui_impl_sdlrenderer2.cpp" />
     <ClCompile Include="..\imgui\imgui.cpp" />
@@ -158,18 +158,9 @@
     <ClCompile Include="..\src\ui.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Chip8-Core\chip8.h" />
-    <ClInclude Include="..\Chip8-Core\chip8_defines.h" />
-    <ClInclude Include="..\Chip8-Core\chip8_mnem.h" />
-    <ClInclude Include="..\imgui\backends\imgui_impl_sdl2.h" />
-    <ClInclude Include="..\imgui\backends\imgui_impl_sdlrenderer2.h" />
-    <ClInclude Include="..\imgui\imconfig.h" />
-    <ClInclude Include="..\imgui\imgui.h" />
-    <ClInclude Include="..\imgui\imgui_internal.h" />
-    <ClInclude Include="..\imgui\imgui_memory_editor.h" />
-    <ClInclude Include="..\imgui\imstb_rectpack.h" />
-    <ClInclude Include="..\imgui\imstb_textedit.h" />
-    <ClInclude Include="..\imgui\imstb_truetype.h" />
+    <ClInclude Include="..\Chip8-Core\src\chip8.h" />
+    <ClInclude Include="..\Chip8-Core\src\chip8_defines.h" />
+    <ClInclude Include="..\Chip8-Core\src\chip8_mnem.h" />
     <ClInclude Include="..\src\chip8_sdl2.h" />
     <ClInclude Include="..\src\load_ini\loadini.h" />
     <ClInclude Include="..\src\main.h" />

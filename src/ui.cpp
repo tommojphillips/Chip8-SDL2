@@ -5,7 +5,7 @@
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
-#include "imgui_memory_editor.h"
+#include "imgui_memory_editor/imgui_memory_editor.h"
 using namespace ImGui;
 
 #include "ui.h"
