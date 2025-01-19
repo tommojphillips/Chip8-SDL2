@@ -7,21 +7,21 @@ A Chip-8 Interpreter For windows written in C using SDL2 for renderering and img
 #### Input
 
 
-| Keyboard | ---> |  Chip8   |
-| -------- | ---- | -------- | 
-| 1 2 3 4  | ---> | 1 2 3 C  |
-| Q W E R  | ---> | 4 5 6 D  |
-| A S D F  | ---> | 7 8 9 E  |
-| Z X C V  | ---> | A 0 B F  |
-
-| Key         | Desc                       | 
-| ---         | ----------------------     |  
+| Key         | Desc                       |
+| ---         | ----------------------     |
 | Esc         | Toggle Main Menu           |
 | Ctrl+R      | Reset current program      |
 | Space       | Pause/Unpause              |
 | Plus ( + )  | Increment Clock            |
 | Minus ( - ) | Decrment Clock             |
 | Enter       | Step Program (when halted) |
+
+```
+1 2 3 4  -->  1 2 3 C
+Q W E R  -->  4 5 6 D
+A S D F  -->  7 8 9 E
+Z X C V  -->  A 0 B F
+```
 
 ---
 
@@ -79,7 +79,7 @@ The project is built in Visual Studio 2022
   7. Download SDL2 Image VC package [`SDL2_Image-devel-X.X.X-VC.zip`](https://github.com/libsdl-org/SDL_image/releases/download/release-2.8.4/SDL2_image-devel-2.8.4-VC.zip) (direct download link)
      - Extract the `include` and `lib` folders into `Chip8-SDL2/lib/SDL2_Image` you will have to create the `SDL2_Image` directory
   
-  8. Open .Sln in visual studio and build and run
+  8. Open `vc\Chip8-SDL2.sln` in visual studio and build and run
 
 The project directory structure should look like this:
 
