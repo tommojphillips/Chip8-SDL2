@@ -364,10 +364,11 @@ FodyWeavers.xsd
 
 test_roms/
 SDL2/
-SDL2-image/
 SDL2_image/
 imgui/
+imgui_club/
 Chip8-Core/
 
 imgui.ini
 chip8.ini
+/.test_roms
