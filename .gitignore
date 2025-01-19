@@ -369,5 +369,5 @@ SDL2_image/
 imgui/
 Chip8-Core/
 
-/imgui.ini
-/chip8.ini
+imgui.ini
+chip8.ini
