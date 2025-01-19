@@ -95,9 +95,37 @@ Chip8-SDL2\
 
 #### Screenshots
 
-Space Invaders
-![Screenshot 2025-01-01 105501](https://github.com/user-attachments/assets/9f6ca31a-438c-4077-8d84-8d0d98cf2e6b)
-![Screenshot 2025-01-01 105413](https://github.com/user-attachments/assets/e5d8cce6-d1a7-47b3-a273-ca3b2c5e33d1)
+Space Invaders (Pixel Spacing = 0)
+
+![Screenshot 2025-01-19 231610](https://github.com/user-attachments/assets/c8299064-18e4-4bf7-b837-81077d468485)
+
+Space Invaders (Pixel Spacing = 2)
+
+![Screenshot 2025-01-19 231629](https://github.com/user-attachments/assets/2d0b2e43-5b5d-4287-957a-dbcf3392b2f7)
+
+Space Invaders (Pixel Spacing = 4)
+
+![Screenshot 2025-01-19 232304](https://github.com/user-attachments/assets/4faddd25-67b4-482c-9a52-c8ec5513c764)
+
+Window / Display Settings
+
+![Screenshot 2025-01-19 231706](https://github.com/user-attachments/assets/e1449ad4-39c9-4625-be24-b2c752d1e11b)
+
+Chip8 Quirks / Setitngs
+
+![Screenshot 2025-01-19 231715](https://github.com/user-attachments/assets/21c1fd50-50ca-437b-89a1-1829e78ae2bc)
+
+Display editor ( click pixel to toggle )
+
+![Screenshot 2025-01-19 231835](https://github.com/user-attachments/assets/1cf31491-5b22-495c-ad94-2e05b8cc30b8)
+
+Display RAM editor 
+
+![Screenshot 2025-01-19 231846](https://github.com/user-attachments/assets/1d8ac9ec-cf69-49d1-a09e-d3ebffb5bc5a)
+
+Instruction Debug & RAM editor
+
+![Screenshot 2025-01-19 231859](https://github.com/user-attachments/assets/d448ba06-5c5e-4a8b-8f6c-c1827a7268f2)
 
 ---
 
