@@ -176,6 +176,9 @@
     <ClInclude Include="..\src\display.h" />
     <ClInclude Include="..\src\ui.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\assets\icon.ico" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -171,5 +171,6 @@ int load_program(const char* filename) {
 	fread(chip8->ram + CHIP8_PROGRAM_ADDR, 1, size, file);
 	fclose(file);
 	printf("loaded %s (%d bytes) into RAM at 0x%x\n", filename, size, CHIP8_PROGRAM_ADDR);
+	chip8->cpu_state = CHIP8_STATE_EXE;
 	return 0;
 }
