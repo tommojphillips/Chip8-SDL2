@@ -66,6 +66,9 @@
     <ClCompile Include="..\lib\Chip8-Core\chip8_mnem.c">
       <Filter>Chip8-Core</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\input.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\chip8_sdl2.h">

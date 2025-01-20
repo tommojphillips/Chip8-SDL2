@@ -65,35 +65,7 @@ static void menu_window();
 static void menu_window();
 static void video_memory_window();
 static void resize_display();
-
-static void set_default_settings() {
-	/* UI State */
-	ui_state.pc_increment = 2;
-	ui_state.follow_pc_ram = 0;
-	ui_state.window_scale = 1.0f;
-	ui_state.show_menu_window = 0;
-	ui_state.show_debug_window = 0;
-	ui_state.show_stats_window = 0;
-	ui_state.show_registers_window = 0;
-	ui_state.show_video_button_window = 0;
-	ui_state.show_ram_window = 0;
-	ui_state.cols_ram_window = 16;
-	ui_state.ascii_ram_window = 0;
-	ui_state.show_video_ram_window = 0;
-	ui_state.cols_video_ram_window = 64;
-	ui_state.ascii_video_ram_window = 0;
-}
-
-void imgui_refresh_ui_state() {
-	/* Save off ui state so they can be saved to a file */
-	ui_state.show_ram_window = imgui.mem_editor->Open;
-	ui_state.cols_ram_window = imgui.mem_editor->Cols;
-	ui_state.ascii_ram_window = imgui.mem_editor->OptShowAscii;
-	ui_state.show_video_ram_window = imgui.video_editor->Open;
-	ui_state.cols_video_ram_window = imgui.video_editor->Cols;
-	ui_state.ascii_video_ram_window = imgui.video_editor->OptShowAscii;
-	ui_state.window_scale = imgui.io->FontGlobalScale;
-}
+static void set_default_settings();
 
 void imgui_init() {
 	set_default_settings();
@@ -181,13 +153,41 @@ void imgui_toggle_menu() {
 	ui_state.show_menu_window ^= 1;
 }
 
+void imgui_refresh_ui_state() {
+	/* Save off ui state so they can be saved to a file */
+	ui_state.show_ram_window = imgui.mem_editor->Open;
+	ui_state.cols_ram_window = imgui.mem_editor->Cols;
+	ui_state.ascii_ram_window = imgui.mem_editor->OptShowAscii;
+	ui_state.show_video_ram_window = imgui.video_editor->Open;
+	ui_state.cols_video_ram_window = imgui.video_editor->Cols;
+	ui_state.ascii_video_ram_window = imgui.video_editor->OptShowAscii;
+	ui_state.window_scale = imgui.io->FontGlobalScale;
+}
+
+static void set_default_settings() {
+	ui_state.pc_increment = 2;
+	ui_state.follow_pc_ram = 0;
+	ui_state.window_scale = 1.0f;
+	ui_state.show_menu_window = 0;
+	ui_state.show_debug_window = 0;
+	ui_state.show_stats_window = 0;
+	ui_state.show_registers_window = 0;
+	ui_state.show_video_button_window = 0;
+	ui_state.show_ram_window = 0;
+	ui_state.cols_ram_window = 16;
+	ui_state.ascii_ram_window = 0;
+	ui_state.show_video_ram_window = 0;
+	ui_state.cols_video_ram_window = 64;
+	ui_state.ascii_video_ram_window = 0;
+}
+
 static void stats_window() {
 	Begin("Stats", (bool*)&ui_state.show_stats_window);
 	Text("%.2f dt", window_stats->delta_time);
 	Text("%.2f ms/frame ", window_stats->render_elapsed_time);
 	Text("%.2f fps ", window_stats->render_fps);
 	Text("Instr/frame  %u", window_stats->instructions_per_frame);
-	Text("cycles/frame  %u", chip8->cycles);
+	//Text("cycles/frame  %u", chip8->cycles);
 	End();
 }
 static void registers_window() {
@@ -451,11 +451,19 @@ static void chip8_settings_window() {
 
 	SameLine();
 	tmp = (chip8->quirks & CHIP8_QUIRK_DISPLAY_CLIPPING);
-	if (Checkbox("Sprite Clipping", &tmp)) {
+	if (Checkbox("Display Clipping", &tmp)) {
 		chip8->quirks ^= CHIP8_QUIRK_DISPLAY_CLIPPING;
 		chip8_config.quirk_display_clipping = tmp;
 	}
-	SetItemTooltip("Clip sprites that are off screen (out of bounds)");
+	SetItemTooltip("DXYN clips pixels that are off screen (out of bounds)");
+
+	SameLine();
+	tmp = (chip8->quirks & CHIP8_QUIRK_DISPLAY_WAIT);
+	if (Checkbox("Display Wait", &tmp)) {
+		chip8->quirks ^= CHIP8_QUIRK_DISPLAY_WAIT;
+		chip8_config.quirk_display_clipping = tmp;
+	}
+	SetItemTooltip("DXYN waits for VBlank");
 
 	tmp = (chip8->quirks & CHIP8_QUIRK_SHIFT_X_REGISTER);
 	if (Checkbox("Shift X Register", &tmp)) {

@@ -3,7 +3,6 @@
 */
 
 #include <stdint.h>
-#include <malloc.h>
 #include <string.h>
 
 #include "ui.h"
@@ -52,17 +51,17 @@ int main(int argc, char* argv[]) {
 		start_frame();
 
 		sdl_update();
-		imgui_update();
 		chip8_update();
 		
 		const double render_duration = (1000.0 / chip8_config.render_target);
 		window_stats->render_elapsed_time += window_stats->delta_time;
 		window_stats->render_fps = 1.0 / window_stats->render_elapsed_time * 1000.0;
 		if (render_duration < window_stats->render_elapsed_time) {
+			imgui_update();
+			sdl_render();
+			chip8_render(chip8);
 			window_stats->render_elapsed_time -= render_duration;
 			window_stats->instructions_per_frame = 0;
-				sdl_render();
-				chip8_render(chip8);
 		}
 
 		end_frame();

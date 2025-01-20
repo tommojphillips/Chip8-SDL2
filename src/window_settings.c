@@ -66,6 +66,7 @@ static const LOADINI_SETTING_MAP settings_map[] = {
 	{ "quirk_load_store_increment_i_register", LOADINI_SETTING_TYPE_INT },
 	{ "quirk_jump", LOADINI_SETTING_TYPE_INT },
 	{ "quirk_display_clipping", LOADINI_SETTING_TYPE_INT },
+	{ "quirk_display_wait", LOADINI_SETTING_TYPE_INT },
 };
 static LOADINI_VAR_MAP* var_map;
 
@@ -178,6 +179,7 @@ void loadini_init() {
 	set_var(&chip8_config.quirk_increment_i_register);
 	set_var(&chip8_config.quirk_jump);
 	set_var(&chip8_config.quirk_display_clipping);
+	set_var(&chip8_config.quirk_display_wait);
 }
 void loadini_destroy() {
 	if (var_map != NULL) {

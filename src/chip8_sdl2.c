@@ -17,34 +17,12 @@ CHIP8_STATE chip8_state = { 0 };
 
 static void chip8_emulate_cycle();
 static void chip8_single_step_cycle();
+static void set_default_settings();
 
-static void set_default_settings() {
-	/* Chip8 State */
-	chip8_config.cpu_target = 540; // 540hz
-	chip8_config.timer_target = 60; // 60hz
-	chip8_config.render_target = 60; // 60hz
-
-	chip8_config.on_color.r = 100;
-	chip8_config.on_color.g = 255;
-	chip8_config.on_color.b = 105;
-
-	chip8_config.off_color.r = 0x0;
-	chip8_config.off_color.g = 0x0;
-	chip8_config.off_color.b = 0x0;
-
-	chip8_config.win_x = 0;
-	chip8_config.win_y = 0;
-	chip8_config.win_w = window_state->win_w;
-	chip8_config.win_h = window_state->win_h;
-	chip8_config.win_s = 1.0f;
-	chip8_config.pixel_spacing = 0;
-
-	chip8_config.quirk_cls_on_reset = 1;
-	chip8_config.quirk_zero_vf_register = 1;
-	chip8_config.quirk_display_clipping = 1;
-	chip8_config.quirk_shift_x_register = 0;
-	chip8_config.quirk_increment_i_register = 0;
-	chip8_config.quirk_jump = 0;
+void upload_pixels_to_buffer() {
+	for (int i = 0; i < CHIP8_NUM_PIXELS; ++i) {
+		window_state->display_buffer[i] = chip8->display[i];
+	}
 }
 
 void chip8_init() {
@@ -90,33 +68,12 @@ void chip8_reset() {
 }
 
 void chip8_render(CHIP8* chip8) {
-		
-	SDL_Rect px = { 0 };
-
-	/* Render pixels */
-	for (int i = 0; i < CHIP8_NUM_PIXELS; ++i) {
-				
-		px.x = PX_X(i);
-		px.y = PX_Y(i);
-		px.w = PX_H;
-		px.h = PX_W;
-
-		if (CHIP8_DISPLAY_GET_PX(chip8->display, i)) {
-			SDL_SetRenderDrawColor(sdl.game_renderer,
-				chip8_config.on_color.r,
-				chip8_config.on_color.g,
-				chip8_config.on_color.b, 0xFF);
-		}
-		else {
-			SDL_SetRenderDrawColor(sdl.game_renderer,
-				chip8_config.off_color.r,
-				chip8_config.off_color.g,
-				chip8_config.off_color.b, 0xFF);
-		}
-
-		SDL_RenderFillRect(sdl.game_renderer, &px);
+	if (chip8->draw_display = 1) {
+		chip8->draw_display = 0;
+		upload_pixels_to_buffer();
 	}
 }
+
 void chip8_beep(CHIP8* chip8) {
 	printf("BEEP **Not Implemented\n");
 }
@@ -126,22 +83,10 @@ uint8_t chip8_random() {
 
 static void chip8_emulate_cycle() {
 
-//#define cycle_loop
-
-#ifdef cycle_loop
-	while (window_stats->instructions_per_frame < (chip8_config.cpu_target)) {
+	while (chip8->draw_display == 0 && window_stats->instructions_per_frame < (chip8_config.cpu_target / 60.0)) {
 		window_stats->instructions_per_frame++;
 		chip8_execute(chip8);
 	}
-#else
-	const double cpu_duration = (1000.0 / chip8_config.cpu_target);
-	window_stats->cpu_elapsed_time += window_stats->delta_time;
-	if (cpu_duration < window_stats->cpu_elapsed_time) {
-		window_stats->cpu_elapsed_time -= cpu_duration;
-		window_stats->instructions_per_frame++;
-		chip8_execute(chip8);
-	}	
-#endif
 
 	const double timer_duration = (1000.0 / chip8_config.timer_target);
 	window_stats->timer_elapsed_time += window_stats->delta_time;
@@ -187,6 +132,34 @@ int load_program(const char* filename) {
 	return 0;
 }
 
+static void set_default_settings() {
+	chip8_config.cpu_target = 540; // 540hz
+	chip8_config.timer_target = 60; // 60hz
+	chip8_config.render_target = 60; // 60hz
+
+	chip8_config.on_color.r = 100;
+	chip8_config.on_color.g = 255;
+	chip8_config.on_color.b = 105;
+
+	chip8_config.off_color.r = 0x0;
+	chip8_config.off_color.g = 0x0;
+	chip8_config.off_color.b = 0x0;
+
+	chip8_config.win_x = 0;
+	chip8_config.win_y = 0;
+	chip8_config.win_w = window_state->win_w;
+	chip8_config.win_h = window_state->win_h;
+	chip8_config.win_s = 1.0f;
+	chip8_config.pixel_spacing = 0;
+
+	chip8_config.quirk_cls_on_reset = 1;
+	chip8_config.quirk_zero_vf_register = 1;
+	chip8_config.quirk_display_clipping = 1;
+	chip8_config.quirk_display_wait = 1;
+	chip8_config.quirk_shift_x_register = 0;
+	chip8_config.quirk_increment_i_register = 0;
+	chip8_config.quirk_jump = 0;
+}
 void set_quirks() {
 	/* set cpu quirks from config */
 	if (chip8_config.quirk_cls_on_reset)
@@ -201,6 +174,8 @@ void set_quirks() {
 		chip8->quirks |= CHIP8_QUIRK_JUMP_VX;
 	if (chip8_config.quirk_display_clipping)
 		chip8->quirks |= CHIP8_QUIRK_DISPLAY_CLIPPING;
+	if (chip8_config.quirk_display_wait)
+		chip8->quirks |= CHIP8_QUIRK_DISPLAY_WAIT;
 }
 void get_quirks() {
 	/* get cpu quirks and set config */
@@ -210,4 +185,5 @@ void get_quirks() {
 	chip8_config.quirk_increment_i_register = (chip8->quirks & CHIP8_QUIRK_INCREMENT_I_REGISTER);
 	chip8_config.quirk_jump = (chip8->quirks & CHIP8_QUIRK_JUMP_VX);
 	chip8_config.quirk_display_clipping = (chip8->quirks & CHIP8_QUIRK_DISPLAY_CLIPPING);
+	chip8_config.quirk_display_wait = (chip8->quirks & CHIP8_QUIRK_DISPLAY_WAIT);
 }

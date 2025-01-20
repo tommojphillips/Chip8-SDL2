@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 #include "SDL.h"
+#include "chip8.h"
 
 /* SDL state */
 typedef struct {
@@ -29,6 +30,7 @@ typedef struct {
 	int last_win_h;
 	int last_win_w;
 	int last_window_state;
+	uint8_t display_buffer[CHIP8_NUM_PIXELS];
 } WINDOW_STATE;
 
 /* Window stats */

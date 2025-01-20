@@ -80,6 +80,7 @@ typedef struct {
 	int quirk_increment_i_register;
 	int quirk_jump;
 	int quirk_display_clipping;
+	int quirk_display_wait;
 	PIXEL_COLOR on_color;
 	PIXEL_COLOR off_color;
 } CHIP8_CONFIG;
