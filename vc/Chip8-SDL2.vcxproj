@@ -61,14 +61,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)..\bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
-    <IncludePath>..\lib\Chip8-Core\src;..\lib\SDL2\include;..\lib\SDL2_image\include;..\lib\imgui;..\lib\imgui_club\;..\lib\imgui\backends;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>..\lib\Chip8-Core;..\lib\SDL2\include;..\lib\SDL2_image\include;..\lib\imgui;..\lib\imgui_club\;..\lib\imgui\backends;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);..\lib\SDL2\lib\x86;..\lib\SDL2_image\lib\x86</LibraryPath>
     <TargetName>Chip8</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Console|Win32'">
     <OutDir>$(SolutionDir)..\bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
-    <IncludePath>..\lib\Chip8-Core\src;..\lib\SDL2\include;..\lib\SDL2_image\include;..\lib\imgui;..\lib\imgui_club\;..\lib\imgui\backends;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>..\lib\Chip8-Core;..\lib\SDL2\include;..\lib\SDL2_image\include;..\lib\imgui;..\lib\imgui_club\;..\lib\imgui\backends;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);..\lib\SDL2\lib\x86;..\lib\SDL2_image\lib\x86</LibraryPath>
     <TargetName>Chip8_console</TargetName>
   </PropertyGroup>
@@ -76,7 +76,7 @@
     <OutDir>$(SolutionDir)..\bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);..\lib\SDL2\lib\x86;..\lib\SDL2_image\lib\x86</LibraryPath>
-    <IncludePath>..\lib\Chip8-Core\src;..\lib\SDL2\include;..\lib\SDL2_image\include;..\lib\imgui;..\lib\imgui_club\;..\lib\imgui\backends;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>..\lib\Chip8-Core;..\lib\SDL2\include;..\lib\SDL2_image\include;..\lib\imgui;..\lib\imgui_club\;..\lib\imgui\backends;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <TargetName>Chip8</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -144,8 +144,8 @@
     </ManifestResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\lib\Chip8-Core\src\chip8.c" />
-    <ClCompile Include="..\lib\Chip8-Core\src\chip8_mnem.c" />
+    <ClCompile Include="..\lib\Chip8-Core\chip8.c" />
+    <ClCompile Include="..\lib\Chip8-Core\chip8_mnem.c" />
     <ClCompile Include="..\lib\imgui\backends\imgui_impl_sdl2.cpp" />
     <ClCompile Include="..\lib\imgui\backends\imgui_impl_sdlrenderer2.cpp" />
     <ClCompile Include="..\lib\imgui\imgui.cpp" />
@@ -160,12 +160,11 @@
     <ClCompile Include="..\src\ui.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\lib\chip8-Core\src\chip8.h" />
-    <ClInclude Include="..\lib\Chip8-Core\src\chip8_defines.h" />
-    <ClInclude Include="..\lib\Chip8-Core\src\chip8_mnem.h" />
+    <ClInclude Include="..\lib\Chip8-Core\chip8.h" />
+    <ClInclude Include="..\lib\Chip8-Core\chip8_defines.h" />
+    <ClInclude Include="..\lib\Chip8-Core\chip8_mnem.h" />
     <ClInclude Include="..\src\chip8_sdl2.h" />
     <ClInclude Include="..\src\load_ini\loadini.h" />
-    <ClInclude Include="..\src\main.h" />
     <ClInclude Include="..\src\display.h" />
     <ClInclude Include="..\src\ui.h" />
   </ItemGroup>

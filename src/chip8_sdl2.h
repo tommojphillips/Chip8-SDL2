@@ -7,10 +7,10 @@
 #include "chip8.h" // chip8 cpu core
 
 /* Window width*/
-#define CFG_WINDOW_W (window_state.win_w)
+#define CFG_WINDOW_W (window_state->win_w)
 
 /* Window height*/
-#define CFG_WINDOW_H (window_state.win_h)
+#define CFG_WINDOW_H (window_state->win_h)
 
 /* Display width */
 #define CFG_DISPLAY_W (chip8_config.win_w)
@@ -106,6 +106,8 @@ void chip8_update();
 void chip8_reset();
 
 int load_program(const char* filename);
+void set_quirks();
+void get_quirks();
 
 #ifdef __cplusplus
 };

@@ -9,12 +9,10 @@
 using namespace ImGui;
 
 #include "ui.h"
-#include "display.h"
 #include "chip8_sdl2.h"
 #include "chip8.h"
 #include "chip8_mnem.h"
-#include "main.h"
-
+#include "display.h"
 
 #define renderer_new_frame \
 	ImGui_ImplSDLRenderer2_NewFrame(); \
@@ -68,7 +66,39 @@ static void menu_window();
 static void video_memory_window();
 static void resize_display();
 
+static void set_default_settings() {
+	/* UI State */
+	ui_state.pc_increment = 2;
+	ui_state.follow_pc_ram = 0;
+	ui_state.window_scale = 1.0f;
+	ui_state.show_menu_window = 0;
+	ui_state.show_debug_window = 0;
+	ui_state.show_stats_window = 0;
+	ui_state.show_registers_window = 0;
+	ui_state.show_video_button_window = 0;
+	ui_state.show_ram_window = 0;
+	ui_state.cols_ram_window = 16;
+	ui_state.ascii_ram_window = 0;
+	ui_state.show_video_ram_window = 0;
+	ui_state.cols_video_ram_window = 64;
+	ui_state.ascii_video_ram_window = 0;
+}
+
+void imgui_refresh_ui_state() {
+	/* Save off ui state so they can be saved to a file */
+	ui_state.show_ram_window = imgui.mem_editor->Open;
+	ui_state.cols_ram_window = imgui.mem_editor->Cols;
+	ui_state.ascii_ram_window = imgui.mem_editor->OptShowAscii;
+	ui_state.show_video_ram_window = imgui.video_editor->Open;
+	ui_state.cols_video_ram_window = imgui.video_editor->Cols;
+	ui_state.ascii_video_ram_window = imgui.video_editor->OptShowAscii;
+	ui_state.window_scale = imgui.io->FontGlobalScale;
+}
+
 void imgui_init() {
+	set_default_settings();
+}
+void imgui_create_renderer() {
 
 	IMGUI_CHECKVERSION();
 	imgui.context = CreateContext();
@@ -77,9 +107,9 @@ void imgui_init() {
 		return;
 	}
 
-	StyleColorsDark(); 
+	StyleColorsDark();
 	//StyleColorsLight();
-	
+
 	imgui.io = &GetIO();
 	imgui.io->FontGlobalScale = ui_state.window_scale;
 
@@ -96,19 +126,11 @@ void imgui_init() {
 	video_edit.OptShowAscii = ui_state.ascii_video_ram_window;
 	imgui.video_editor = &video_edit;
 
-	ImGui_ImplSDL2_InitForSDLRenderer(sdl.game_window, sdl.game_renderer); 
+	ImGui_ImplSDL2_InitForSDLRenderer(sdl.game_window, sdl.game_renderer);
 	ImGui_ImplSDLRenderer2_Init(sdl.game_renderer);
 }
 void imgui_destroy() {
 
-	/* Save off ui state so they can be saved to a file */
-	ui_state.show_ram_window = imgui.mem_editor->Open;
-	ui_state.cols_ram_window = imgui.mem_editor->Cols;
-	ui_state.ascii_ram_window = imgui.mem_editor->OptShowAscii;
-	ui_state.show_video_ram_window = imgui.video_editor->Open;
-	ui_state.cols_video_ram_window = imgui.video_editor->Cols;
-	ui_state.ascii_video_ram_window = imgui.video_editor->OptShowAscii;
-	ui_state.window_scale = imgui.io->FontGlobalScale;
 	
 	/* Cleanup */
 	ImGui_ImplSDLRenderer2_Shutdown(); 
@@ -371,7 +393,6 @@ static void window_settings_window() {
 	limit = DISPLAY_Y_LIMIT;
 	SliderInt("Display Y", &chip8_config.win_y, -limit, limit);
 
-	limit = DISPLAY_W_LIMIT;
 	SliderFloat("Display Scale", &chip8_config.win_s, 0.1f, 1.0f);
 
 	int pixel_spacing = chip8_config.pixel_spacing;
@@ -450,7 +471,7 @@ static void chip8_settings_window() {
 
 	SameLine();
 	tmp = (chip8->quirks & CHIP8_QUIRK_INCREMENT_I_REGISTER);
-	if (Checkbox("LD Increment register I", &tmp)) {
+	if (Checkbox("LD Inc I", &tmp)) {
 		chip8->quirks ^= CHIP8_QUIRK_INCREMENT_I_REGISTER;
 		chip8_config.quirk_increment_i_register = tmp;
 	}
@@ -471,6 +492,9 @@ static void chip8_settings_window() {
 	
 
 	const int limit = 1000;
+
+	Text("Clock Hz:  ");
+	SameLine();
 	if (ArrowButton("CLOCK_DOWN", ImGuiDir_Left)) {
 		if (chip8_config.cpu_target > 0) {
 			chip8_config.cpu_target--;
@@ -485,9 +509,13 @@ static void chip8_settings_window() {
 	}
 	SetItemTooltip("Increase Clock Hz Target");
 	SameLine();
-	SliderInt("Clock Hz", &chip8_config.cpu_target, 1, limit);
+	PushItemWidth(GetFontSize() * 15);
+	SliderInt("###Clock_Target_Hz", &chip8_config.cpu_target, 1, limit);
+	PopItemWidth();
 	SetItemTooltip("Clock Hz Target");
 
+	Text("Timer Hz:  ");
+	SameLine();
 	if (ArrowButton("TIMER_DOWN", ImGuiDir_Left)) {
 		if (chip8_config.timer_target > 0) {
 			chip8_config.timer_target--;
@@ -502,9 +530,13 @@ static void chip8_settings_window() {
 	}
 	SetItemTooltip("Increase Timer Hz Target");
 	SameLine();
-	SliderInt("Timer Hz", &chip8_config.timer_target, 1, limit);
+	PushItemWidth(GetFontSize() * 15);
+	SliderInt("###Timer_Target_Hz", &chip8_config.timer_target, 1, limit);
+	PopItemWidth();
 	SetItemTooltip("Timer Hz Target");
 
+	Text("Render Hz: ");
+	SameLine();
 	if (ArrowButton("RENDER_DOWN", ImGuiDir_Left)) {
 		if (chip8_config.render_target > 0) {
 			chip8_config.render_target--;
@@ -517,9 +549,11 @@ static void chip8_settings_window() {
 			chip8_config.render_target++;
 		}
 	}
-	SetItemTooltip("Increase Render Hz Target");
-	SameLine();
-	SliderInt("Render Hz", &chip8_config.render_target, 1, limit);
+	SetItemTooltip("Increase Render Hz Target"); 
+	SameLine();	
+	PushItemWidth(GetFontSize() * 15);
+	SliderInt("###Render_Target_Hz", &chip8_config.render_target, 1, limit);
+	PopItemWidth();
 	SetItemTooltip("Render Hz Target");
 }
 static void menu_window() {
@@ -581,11 +615,11 @@ static void outline_test() {
 
 static void resize_display() {
 
-	int win_w = (int)(window_state.win_w * chip8_config.win_s);
-	int win_h = (int)(window_state.win_h * chip8_config.win_s);
+	int win_w = (int)(window_state->win_w * chip8_config.win_s);
+	int win_h = (int)(window_state->win_h * chip8_config.win_s);
 
-	double ratioX = win_w / (double)DISPLAY_WIDTH;
-	double ratioY = win_h / (double)DISPLAY_HEIGHT;
+	double ratioX = win_w / (double)(64 * (((chip8_config.win_w) / 64) + (chip8_config.pixel_spacing)));
+	double ratioY = win_h / (double)(32 * (((chip8_config.win_w) / 64) + (chip8_config.pixel_spacing)));
 	double ratio = ratioX < ratioY ? ratioX : ratioY;
 
 	chip8_config.win_w = (int)(DISPLAY_WIDTH * ratio);

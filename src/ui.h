@@ -5,8 +5,6 @@
 #ifndef IMGUI_WINDOW_UI_H
 #define IMGUI_WINDOW_UI_H
 
-#include "SDL.h"
-
 typedef struct {
 	int show_menu_window;
 	int show_stats_window;
@@ -32,6 +30,8 @@ extern "C" {
 // init imgui
 void imgui_init();
 
+void imgui_create_renderer();
+
 // destroy imgui
 void imgui_destroy();
 
@@ -43,6 +43,8 @@ void imgui_process_event();
 
 // imgui toggle menu ui
 void imgui_toggle_menu();
+
+void imgui_refresh_ui_state();
 
 #ifdef __cplusplus
 };

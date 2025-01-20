@@ -52,8 +52,15 @@ typedef struct {
 extern "C" {
 #endif
 
+extern SDL_STATE sdl;
+extern WINDOW_STATS* window_stats;
+extern WINDOW_STATE* window_state;
+
 /* SDL2 Init */
 void sdl_init();
+
+/* SDL2 Create window */
+void sdl_create_window();
 
 /* SDL2 Destroy */
 void sdl_destroy();

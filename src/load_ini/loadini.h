@@ -42,7 +42,7 @@ enum {
 
 typedef struct {
 	const char* key;
-	const LOADINI_SETTING_TYPE type;
+	LOADINI_SETTING_TYPE type;
 } LOADINI_SETTING_MAP;
 
 typedef struct {

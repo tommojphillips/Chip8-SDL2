@@ -7,12 +7,14 @@
 #include <string.h>
 
 #include "ui.h"
-#include "display.h"
 #include "chip8_sdl2.h"
 #include "chip8.h" // chip8 cpu core
-#include "main.h"
+#include "display.h"
 
-void loadini_init();
+void loadini_init(); 
+void loadini_destroy();
+void loadini_save_settings();
+void loadini_load_settings();
 
 static void process_command_line(int argc, char* argv[]) {
 	if (argc > 1) {
@@ -34,14 +36,18 @@ void end_frame() {
 
 int main(int argc, char* argv[]) {
 
-	loadini_init();
 	sdl_init();
 	imgui_init();
 	chip8_init();
+	loadini_init();
 
-	process_command_line(argc, argv);
+	loadini_load_settings();
+	process_command_line(argc, argv); 
+	
+	sdl_create_window();
+	imgui_create_renderer();
 
-	while (window_state.window_open) {
+	while (window_state->window_open) {
 		
 		start_frame();
 
@@ -62,7 +68,10 @@ int main(int argc, char* argv[]) {
 		end_frame();
 	}
 
+	loadini_save_settings();
+
 	// Cleanup
+	loadini_destroy();
 	chip8_destroy();
 	imgui_destroy();
 	sdl_destroy();

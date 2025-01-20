@@ -13,15 +13,32 @@
 #include "ui.h"
 #include "chip8_sdl2.h"
 #include "chip8.h" // chip8 cpu core
-#include "main.h"
 
 SDL_STATE sdl = { 0 };
 WINDOW_STATS* window_stats = NULL;
-WINDOW_STATE window_state = { 0 };
+WINDOW_STATE* window_state = NULL;
 
 static void keypad_input(uint8_t v);
 static void system_input();
 static void resize_display_keep_aspect_ratio();
+
+static void set_default_settings() {
+
+	/* Window State */
+	window_state->win_x = SDL_WINDOWPOS_CENTERED;
+	window_state->win_y = SDL_WINDOWPOS_CENTERED;
+	window_state->last_window_state = 0;
+
+	SDL_DisplayMode display_mode;
+	if (SDL_GetCurrentDisplayMode(0, &display_mode) == 0) {
+		window_state->win_w = (int)(display_mode.w * 0.60f);
+		window_state->win_h = (int)(display_mode.h * 0.60f);
+	}
+	else {
+		window_state->win_w = 640;
+		window_state->win_h = 480;
+	}
+}
 
 // Init SDL2
 void sdl_init() {
@@ -33,32 +50,27 @@ void sdl_init() {
 	}
 	memset(window_stats, 0, sizeof(WINDOW_STATS));
 
+	window_state = (WINDOW_STATE*)malloc(sizeof(WINDOW_STATE));
+	if (window_state == NULL) {
+		printf("Failed to allocate window state\n");
+		exit(1);
+	}
+	memset(window_state, 0, sizeof(WINDOW_STATE));
+
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		printf("Failed to initialize SDL\n");
 		exit(1);
 	}
 
-	// Game window
-	if (window_state.win_w <= 0 || window_state.win_h <= 0) {
-		SDL_DisplayMode display_mode;
-		if (SDL_GetCurrentDisplayMode(0, &display_mode) == 0) {
-			window_state.win_w = (int)(display_mode.w * 0.60f);
-			window_state.win_h = (int)(display_mode.h * 0.60f);
-		}
-		else {
-			window_state.win_w = 640;
-			window_state.win_h = 480;
-		}
-	}
+	set_default_settings();
+}
 
-	if (window_state.win_x < 5)
-		window_state.win_x = 5;
-	if (window_state.win_y < 50)
-		window_state.win_y = 50;
+// Create window SDL2
+void sdl_create_window() {
 
 	sdl.game_window = SDL_CreateWindow("Chip-8",
-		window_state.win_x, window_state.win_y, window_state.win_w, window_state.win_h,
-		SDL_WINDOW_RESIZABLE | window_state.last_window_state);
+		window_state->win_x, window_state->win_y, window_state->win_w, window_state->win_h,
+		SDL_WINDOW_RESIZABLE | window_state->last_window_state);
 
 	if (sdl.game_window == NULL) {
 		printf("Failed to create game window\n");
@@ -81,7 +93,7 @@ void sdl_init() {
 	}
 
 
-	window_state.window_open = 1;
+	window_state->window_open = 1;
 }
 
 // Destroy SDL2
@@ -90,6 +102,11 @@ void sdl_destroy() {
 	if (window_stats != NULL) {
 		free(window_stats);
 		window_stats = NULL;
+	}
+
+	if (window_state != NULL) {
+		free(window_state);
+		window_state = NULL;
 	}
 
 	if (sdl.icon_surface != NULL) {
@@ -112,14 +129,14 @@ void sdl_destroy() {
 
 // SDL2 update
 void sdl_update() {
-	while (SDL_PollEvent(&sdl.e) && window_state.window_open) {
+	while (SDL_PollEvent(&sdl.e) && window_state->window_open) {
 
 		imgui_process_event(&sdl.e);
 
 		switch (sdl.e.type) {
 
 			case SDL_QUIT:
-				window_state.window_open = 0;
+				window_state->window_open = 0;
 				break;
 
 			case SDL_DROPFILE:
@@ -139,24 +156,24 @@ void sdl_update() {
 				switch (sdl.e.window.event) {
 					
 					case SDL_WINDOWEVENT_RESIZED:
-						window_state.last_win_w = window_state.win_w;
-						window_state.last_win_h = window_state.win_h;
-						SDL_GetWindowSize(sdl.game_window, &window_state.win_w, &window_state.win_h);
+						window_state->last_win_w = window_state->win_w;
+						window_state->last_win_h = window_state->win_h;
+						SDL_GetWindowSize(sdl.game_window, &window_state->win_w, &window_state->win_h);
 						resize_display_keep_aspect_ratio();
 						break;
 
 					case SDL_WINDOWEVENT_MOVED:
-						window_state.last_win_x = window_state.win_x;
-						window_state.last_win_y = window_state.win_y;
-						SDL_GetWindowPosition(sdl.game_window, &window_state.win_x, &window_state.win_y);
+						window_state->last_win_x = window_state->win_x;
+						window_state->last_win_y = window_state->win_y;
+						SDL_GetWindowPosition(sdl.game_window, &window_state->win_x, &window_state->win_y);
 						break;
 
 					case SDL_WINDOWEVENT_MAXIMIZED:
-						window_state.last_window_state = SDL_WINDOW_MAXIMIZED;
+						window_state->last_window_state = SDL_WINDOW_MAXIMIZED;
 						break;
 
 					case SDL_WINDOWEVENT_RESTORED:
-						window_state.last_window_state = 0;
+						window_state->last_window_state = 0;
 						break;
 				}
 		}
@@ -271,12 +288,12 @@ static void system_input() {
 		} break;
 
 		case SDLK_F11: { // Full Screen
-			if (window_state.last_window_state != SDL_WINDOW_FULLSCREEN_DESKTOP) {
-				window_state.last_window_state = SDL_WINDOW_FULLSCREEN_DESKTOP;
+			if (window_state->last_window_state != SDL_WINDOW_FULLSCREEN_DESKTOP) {
+				window_state->last_window_state = SDL_WINDOW_FULLSCREEN_DESKTOP;
 				SDL_SetWindowFullscreen(sdl.game_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 			}
 			else {
-				window_state.last_window_state = 0;
+				window_state->last_window_state = 0;
 				SDL_SetWindowFullscreen(sdl.game_window, 0);
 			}
 		} break;
@@ -285,8 +302,8 @@ static void system_input() {
 
 static void resize_display_keep_aspect_ratio() {
 
-	int win_w = (int)(window_state.win_w * chip8_config.win_s);
-	int win_h = (int)(window_state.win_h * chip8_config.win_s);
+	int win_w = (int)(window_state->win_w * chip8_config.win_s);
+	int win_h = (int)(window_state->win_h * chip8_config.win_s);
 
 	double ratioX = win_w / (double)DISPLAY_WIDTH;
 	double ratioY = win_h / (double)DISPLAY_HEIGHT;

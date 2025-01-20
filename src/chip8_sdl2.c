@@ -8,9 +8,8 @@
 #include <malloc.h>
 
 #include "chip8_sdl2.h"
-#include "display.h"
 #include "chip8.h" // chip8 cpu core
-#include "main.h"
+#include "display.h"
 
 CHIP8* chip8 = NULL;
 CHIP8_CONFIG chip8_config = { 0 };
@@ -18,6 +17,35 @@ CHIP8_STATE chip8_state = { 0 };
 
 static void chip8_emulate_cycle();
 static void chip8_single_step_cycle();
+
+static void set_default_settings() {
+	/* Chip8 State */
+	chip8_config.cpu_target = 540; // 540hz
+	chip8_config.timer_target = 60; // 60hz
+	chip8_config.render_target = 60; // 60hz
+
+	chip8_config.on_color.r = 100;
+	chip8_config.on_color.g = 255;
+	chip8_config.on_color.b = 105;
+
+	chip8_config.off_color.r = 0x0;
+	chip8_config.off_color.g = 0x0;
+	chip8_config.off_color.b = 0x0;
+
+	chip8_config.win_x = 0;
+	chip8_config.win_y = 0;
+	chip8_config.win_w = window_state->win_w;
+	chip8_config.win_h = window_state->win_h;
+	chip8_config.win_s = 1.0f;
+	chip8_config.pixel_spacing = 0;
+
+	chip8_config.quirk_cls_on_reset = 1;
+	chip8_config.quirk_zero_vf_register = 1;
+	chip8_config.quirk_display_clipping = 1;
+	chip8_config.quirk_shift_x_register = 0;
+	chip8_config.quirk_increment_i_register = 0;
+	chip8_config.quirk_jump = 0;
+}
 
 void chip8_init() {
 
@@ -31,23 +59,7 @@ void chip8_init() {
 
 	chip8_init_cpu(chip8);
 
-	if (chip8_config.quirk_cls_on_reset)
-		chip8->quirks |= CHIP8_QUIRK_CLS_ON_RESET;
-
-	if (chip8_config.quirk_zero_vf_register)
-		chip8->quirks |= CHIP8_QUIRK_ZERO_VF_REGISTER;
-
-	if (chip8_config.quirk_shift_x_register)
-		chip8->quirks |= CHIP8_QUIRK_SHIFT_X_REGISTER;
-
-	if (chip8_config.quirk_increment_i_register)
-		chip8->quirks |= CHIP8_QUIRK_INCREMENT_I_REGISTER;
-
-	if (chip8_config.quirk_jump)
-		chip8->quirks |= CHIP8_QUIRK_JUMP_VX;
-
-	if (chip8_config.quirk_display_clipping)
-		chip8->quirks |= CHIP8_QUIRK_DISPLAY_CLIPPING;
+	set_default_settings();
 }
 void chip8_destroy() {
 
@@ -170,7 +182,32 @@ int load_program(const char* filename) {
 
 	fread(chip8->ram + CHIP8_PROGRAM_ADDR, 1, size, file);
 	fclose(file);
-	printf("loaded %s (%d bytes) into RAM at 0x%x\n", filename, size, CHIP8_PROGRAM_ADDR);
+	printf("Loaded %s (%d bytes) into RAM at 0x%x\n", filename, size, CHIP8_PROGRAM_ADDR);
 	chip8->cpu_state = CHIP8_STATE_EXE;
 	return 0;
+}
+
+void set_quirks() {
+	/* set cpu quirks from config */
+	if (chip8_config.quirk_cls_on_reset)
+		chip8->quirks |= CHIP8_QUIRK_CLS_ON_RESET;
+	if (chip8_config.quirk_zero_vf_register)
+		chip8->quirks |= CHIP8_QUIRK_ZERO_VF_REGISTER;
+	if (chip8_config.quirk_shift_x_register)
+		chip8->quirks |= CHIP8_QUIRK_SHIFT_X_REGISTER;
+	if (chip8_config.quirk_increment_i_register)
+		chip8->quirks |= CHIP8_QUIRK_INCREMENT_I_REGISTER;
+	if (chip8_config.quirk_jump)
+		chip8->quirks |= CHIP8_QUIRK_JUMP_VX;
+	if (chip8_config.quirk_display_clipping)
+		chip8->quirks |= CHIP8_QUIRK_DISPLAY_CLIPPING;
+}
+void get_quirks() {
+	/* get cpu quirks and set config */
+	chip8_config.quirk_cls_on_reset = (chip8->quirks & CHIP8_QUIRK_CLS_ON_RESET);
+	chip8_config.quirk_zero_vf_register = (chip8->quirks & CHIP8_QUIRK_ZERO_VF_REGISTER);
+	chip8_config.quirk_shift_x_register = chip8->quirks & CHIP8_QUIRK_SHIFT_X_REGISTER;
+	chip8_config.quirk_increment_i_register = (chip8->quirks & CHIP8_QUIRK_INCREMENT_I_REGISTER);
+	chip8_config.quirk_jump = (chip8->quirks & CHIP8_QUIRK_JUMP_VX);
+	chip8_config.quirk_display_clipping = (chip8->quirks & CHIP8_QUIRK_DISPLAY_CLIPPING);
 }
